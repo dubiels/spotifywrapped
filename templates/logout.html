@@ -1,0 +1,24 @@
+<!-- templates/logout_with_spotify.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging out...</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            const spotifyLogoutUrl = "https://accounts.spotify.com/logout";
+            window.open(spotifyLogoutUrl, "_blank");
+
+            setTimeout(function() {
+                window.location.href = "{% url 'home' %}";
+            }, 1000);
+        }
+    </script>
+</head>
+<body>
+    <h1>Logging you out...</h1>
+    <p>You are being logged out from Spotify in a new tab.</p>
+    <p>Redirecting you back to the home page...</p>
+</body>
+</html>

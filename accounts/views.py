@@ -119,7 +119,8 @@ def wrap_detail(request, wrap_id):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    request.session.flush()
+    return render(request, 'logout.html')
 
 @login_required
 def delete_account(request):

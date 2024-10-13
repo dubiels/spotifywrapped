@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" {% if request.user.is_authenticated and request.user.usersettings.dark_mode %} class="dark-mode" {% endif %}>
+<head>
+    <title>title</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script src="{% static 'script.js' %}" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Duo-Wrapped</h1>
+        {% if request.user.is_authenticated %}
+        <nav>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'past_wraps' %}">Past Wraps</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+        {% else %}
+        <nav>
+            <a href="{% url 'login' %}">Login</a>
+        </nav>
+        {% endif %}
+        <button id="toggle-dark-mode">Dark Mode</button>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </header>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>footer here</p>
+    </footer>
+
+</body>
+</html>

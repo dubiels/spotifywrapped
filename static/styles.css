@@ -1,0 +1,17 @@
+body {
+    background-color: white;
+    color: black;
+}
+
+body.dark-mode {
+    background-color: black;
+    color: white;
+}
+
+.dark-mode header {
+    background-color: darkgreen;
+}
+
+.dark-mode footer {
+    background-color: darkblue;
+}

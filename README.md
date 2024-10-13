@@ -49,11 +49,6 @@ This README provides a description of each HTML page, folder structure, and inst
 - **Purpose**: Provides detailed view of a specific Spotify Wrapped.
 - **Features**: Shows top tracks, artists, and albums for a particular Wrapped.
 
-<style>
-    table {
-        font-size: 12px;
-    }
-</style>
 
 ## User Story Summary and Completion Status
 

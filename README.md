@@ -49,22 +49,27 @@ This README provides a description of each HTML page, folder structure, and inst
 - **Purpose**: Provides detailed view of a specific Spotify Wrapped.
 - **Features**: Shows top tracks, artists, and albums for a particular Wrapped.
 
+<style>
+    table {
+        font-size: 12px;
+    }
+</style>
+
 ## User Story Summary and Completion Status
 
-| User Story                                       | Frontend | Backend | Notes |
-|--------------------------------------------------|----------|---------|-------|
-| Base User Story #1: Spotify API setup            |  | ✅ |  |
-| Base User Story #2: User Authentication          |  | ✅ |  |
-| Base User Story #3: UI design                    |  |  |  |
-| Base User Story #4: .gitignore setup             |  |  | Created |
-| Customizable User Story #5: Hear clips from top songs |  |  | Needs testing |
-| Customizable User Story #8: View and interact with other users' Wrapped | |  | Needs testing |
-| Customizable User Story #10: Dark mode and theme swap |  |  | Dark mode done |
-| Customizable User Story #11: Share Wrapped on social media |  |  |  |
-| Customizable User Story #13: Hosting on a service |  |  |  |
-| Customizable User Story #14: Page transitions and hover effects |  |  |  |
-| Customizable User Story #15: Contact page with feedback form |  |  |  |
-| Customizable User Story #17: Figma file for the website |  |  |  |
+| User Story                                       | Frontend | Backend | Notes | Points |
+|--------------------------------------------------|----------|---------|-------|---|
+| Base User Story #1: Spotify API setup            |  | ✅ |  |  |
+| Base User Story #2: User Authentication          |  | ✅ |  |  |
+| Base User Story #3: UI design                    |  |  |  |  |
+| Base User Story #4: .gitignore setup             |  |  | Created |  |
+| Customizable User Story #5: Hear clips from top songs |  |  | Needs testing | +3 |
+| Customizable User Story #8: View and interact with other users' Wrapped | |  | Needs testing | +9 |
+| Customizable User Story #10: Dark mode and theme swap |  |  | ✅ |  +2 |
+| Customizable User Story #11: Share Wrapped on social media |  |  |  | +2 |
+| Customizable User Story #13: Hosting on a service |  |  |  |+5  |
+| Customizable User Story #14: Page transitions and hover effects |  |  |  | +2 |
+| Customizable User Story #17: Figma file for the website |  |  |  |+1  |
 
 ## Deployment Guide
 

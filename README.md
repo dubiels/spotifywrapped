@@ -57,8 +57,8 @@ This README provides a description of each HTML page, folder structure, and inst
 | Base User Story #2: User Authentication          |  | ✅ |  |
 | Base User Story #3: UI design                    |  |  |  |
 | Base User Story #4: .gitignore setup             |  |  | Created |
-| Customizable User Story #5: Hear clips from top songs |  |  | Needs to figure out if actually works |
-| Customizable User Story #8: View and interact with other users' Wrapped | |  | Needs to figure out if actually works |
+| Customizable User Story #5: Hear clips from top songs |  |  | Needs testing |
+| Customizable User Story #8: View and interact with other users' Wrapped | |  | Needs testing |
 | Customizable User Story #10: Dark mode and theme swap |  |  | Dark mode done |
 | Customizable User Story #11: Share Wrapped on social media |  |  |  |
 | Customizable User Story #13: Hosting on a service |  |  |  |

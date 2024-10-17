@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{% static 'script.js' %}" defer></script>
 </head>
-<body class="min-h-screen flex flex-col dark:bg-gradient-to-r from-black via-emerald-950 to-black dark:text-white" id="theme">
+<body class="min-h-screen flex flex-col dark:bg-gradient-to-r from-black via-emerald-950 to-black dark:text-white font-sans" id="theme">
 
     <!-- Navbar -->
     <header class="w-full flex justify-between items-center py-6 px-4">
@@ -21,7 +21,7 @@
             <a href="#" class="text-lg">About</a>
             <!-- TODO: Dark Mode Toggle -->
             
-            <a href="#" class="text-lg">Login</a>
+            <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
         </div>
     </header>
 

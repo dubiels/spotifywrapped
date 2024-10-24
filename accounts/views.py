@@ -107,26 +107,33 @@ def get_user_top_tracks(request):
         return JsonResponse(top_tracks)
     else:
         return JsonResponse({'error': 'Failed to fetch top tracks'}, status=400)
+    
+def get_user_recently_played(request, limit=10, after=None, before=None):
+    url = "https://api.spotify.com/v1/me/player/recently-played"
+    if after != None and before != None:
+        data = {
+            "limit": limit,
+            "after": after,
+            "before": before,
+        }
+    else:
+        data = {
+            "limit": limit
+        }
+
+    access_token = request.session['spotify_access_token']
+    header = {'Authorization': f'Bearer {access_token}',}
+    response = requests.get(url, headers=header, params=data)
+    if response.status_code == 200:
+        return_data = response.json()
+    else:
+        return_data = {"Error": {response.status_code}, "Text": response.text}
+    return return_data
 
 @login_required
 def dashboard(request):
     # spotify_data = SpotifyListeningData.objects.filter(user=request.user)
-    url = "https://api.spotify.com/v1/me/player/recently-played"
-    current_time_seconds = time.time()
-    current_time_milliseconds = int(current_time_seconds * 1000)
-    data = {
-        "limit": 10
-    }
-    access_token = request.session['spotify_access_token']
-    header = {
-        'Authorization': f'Bearer {access_token}',
-    }
-    response = requests.get(url, headers=header, params=data)
-    if response.status_code == 200:
-        spotify_data = response.json()
-    else:
-        print(f'Error: {response.status_code}')
-        print(response.text)
+    spotify_data = get_user_recently_played(request)
     full_name = request.user.full_name()
     return render(request, 'dashboard.html', context={'spotify_data': spotify_data, 'full_name': full_name})
 

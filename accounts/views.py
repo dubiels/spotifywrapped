@@ -1,5 +1,6 @@
 import requests
 import os
+import time
 import uuid
 from django.shortcuts import redirect
 from django.shortcuts import render, redirect
@@ -8,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.http import JsonResponse
 from urllib.parse import urlencode
+
+access_token = ""
 
 def home(request):
     if request.user.is_authenticated:
@@ -18,6 +21,7 @@ def home(request):
 def generate_state():
     return str(uuid.uuid4())
 
+# Login to Spotify, Spotify redirects to callback URI automatically
 def spotify_login(request):
     state = generate_state()
     request.session['spotify_auth_state'] = state
@@ -27,13 +31,15 @@ def spotify_login(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-        'scope': 'user-read-email',
+        'scope': 'user-read-email user-read-recently-played',
         'state': state,
     }
     
     return redirect(f"{spotify_auth_url}?{urlencode(params)}")
 
+# Spotify will redirect here after user login
 def spotify_callback(request):
+    # Trade the code spotify gives for auth token (allows app to make API calls on user's behalf)
     code = request.GET.get('code')
     state = request.GET.get('state')
 
@@ -52,6 +58,7 @@ def spotify_callback(request):
     response = requests.post(token_url, data=payload)
     token_data = response.json()
 
+    # If the token is valid, create an Account instance and fill in with info from Spotify
     if 'access_token' in token_data:
         access_token = token_data['access_token']
 
@@ -103,9 +110,25 @@ def get_user_top_tracks(request):
 
 @login_required
 def dashboard(request):
-    spotify_data = SpotifyListeningData.objects.filter(user=request.user)
+    # spotify_data = SpotifyListeningData.objects.filter(user=request.user)
+    url = "https://api.spotify.com/v1/me/player/recently-played"
+    current_time_seconds = time.time()
+    current_time_milliseconds = int(current_time_seconds * 1000)
+    data = {
+        "limit": 10
+    }
+    access_token = request.session['spotify_access_token']
+    header = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    response = requests.get(url, headers=header, params=data)
+    if response.status_code == 200:
+        spotify_data = response.json()
+    else:
+        print(f'Error: {response.status_code}')
+        print(response.text)
     full_name = request.user.full_name()
-    return render(request, 'dashboard.html', {'spotify_data': spotify_data, 'full_name': full_name})
+    return render(request, 'dashboard.html', context={'spotify_data': spotify_data, 'full_name': full_name})
 
 @login_required
 def past_wraps(request):

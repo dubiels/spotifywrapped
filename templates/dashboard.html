@@ -1,6 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ user.first_name }}'s Dashboard</h1>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wrapify - {{ user.first_name }}'s Wrapped</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white font-sans">
+
+  <!-- Main Section -->
+  <div class="container mx-auto mt-10">
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-5xl font-bold">{{ user.first_name }}'s Wrapped</h1>
+      <button class="mt-4 bg-green-500 text-black px-6 py-2 rounded-md">Share</button>
+    </div>
+
+    <div>
+        {% for i in spotify_data.items %}
+        Name: {{ i.track.name }}
+        {% for j in i.track.artists %}
+        {{ j.name }}
+        {% endfor %}
+        <br>
+        {% endfor %}
+    </div>
+  </div>
+</body>
 
 {% endblock %}

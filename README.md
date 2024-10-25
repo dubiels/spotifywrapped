@@ -23,7 +23,7 @@ This README provides a description of each HTML page, folder structure, and inst
 
 ### 1. `base.html`
 - **Purpose**: Base layout for all pages with navigation, footer, and Dark Mode toggle.
-- **Features**: Contains header, navigation links, and includes JavaScript for Dark Mode.
+- **Features**: Contains a header with navigation links that display the corresponding section when clicked
 
 ### 2. `dashboard.html`
 - **Purpose**: Displays user-specific Spotify listening data.

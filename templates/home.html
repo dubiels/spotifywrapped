@@ -1,6 +1,35 @@
-{% extends 'base.html' %}
+ {% extends 'base.html' %}
 
 {% block content %}
-<a href="{% url 'login' %}">Click here to login to spotify</a>
 
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between dark-mode" id="theme">
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center text-center">
+        <h1 class="text-7xl font-extrabold mb-4 drop-shadow-lg">Wrapify</h1>
+        <p class="text-xl mb-8">A social app based on Spotify Wrapped.</p>
+        <a href="{% url 'login' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg inline-flex items-center hover:bg-green-600">
+            <img src='../static/spotify-logo.png' class="h-6 w-6 mr-2">
+            Log in with Spotify
+        </a>
+        <a href="https://www.spotify.com/us/signup" class="mt-4 text-sm underline">Don't have Spotify?</a>
+    </main>
+
+</body>
+</html>
+
+
+{% endblock %} 

@@ -15,4 +15,6 @@ urlpatterns = [
     path('play-song-preview/<str:track_id>/', views.play_song_preview, name='play_song_preview'),
     path('logout/', views.logout_view, name='logout'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('top-artists/', views.get_top_artists, name='top_artists'),
+    path('top-genres/', views.get_top_genres, name='top_genres'),
 ]

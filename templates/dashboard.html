@@ -1,6 +1,47 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <h1>{{ user.first_name }}'s Dashboard</h1>
 
+<!-- Top Tracks -->
+<section>
+    <h2>Your Top Tracks</h2>
+    <ul>
+      {% for track in top_tracks %}
+        <li>
+          <strong>{{ track.name }}</strong> by {{ track.artist }}<br>
+          Album: {{ track.album }}<br>
+          {% if track.preview_url %}
+            <a href="{{ track.preview_url }}" target="_blank">Listen to Preview</a>
+          {% else %}
+            Preview not available
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>No top tracks available.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+<!-- Top Artists -->
+<section>
+  <h2>Your Top Artists</h2>
+  <ul>
+    {% for artist in top_artists %}
+    <li>{{ artist }}</li>
+    {% empty %}
+    <li>No top artists available.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- Top Genres -->
+<section>
+  <h2>Your Top Genres</h2>
+  <ul>
+    {% for genre in top_genres %}
+    <li>{{ genre }}</li>
+    {% empty %}
+    <li>No top genres available.</li>
+    {% endfor %}
+  </ul>
+</section>
 {% endblock %}

@@ -9,6 +9,7 @@ from .models import *
 from django.http import JsonResponse
 from urllib.parse import urlencode
 from django.conf import settings
+from django.views.decorators.http import require_GET
 
 def home(request):
     if request.user.is_authenticated:
@@ -209,13 +210,25 @@ def get_top_genres(access_token):
         print("Error fetching top genres:", response.json())
         return []
 
-def get_user_top_tracks(access_token):
+@require_GET
+@login_required
+def fetch_top_tracks(request):
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Spotify access token missing'}, status=401)
+
+    time_frame = request.GET.get('time_frame', 'medium_term')
+    top_tracks = get_user_top_tracks(access_token, limit=15, time_range=time_frame)
+
+    return JsonResponse({'top_tracks': top_tracks})
+
+def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
     params = {
-        'limit': 10,
-        'time_range': 'medium_term',
+        'limit': limit,
+        'time_range': time_range,
     }
 
     response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers, params=params)

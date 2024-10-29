@@ -105,9 +105,8 @@ class UserSettings(models.Model):
     
 class Wrap(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
-    top_15 = models.CharField(max_length=500)
+    top_15 = models.CharField(max_length=2000)
     top_artist = models.CharField(max_length=50)
     top_genre = models.CharField(max_length=100)
     clip_song = models.CharField(max_length=100)
-
 

@@ -31,7 +31,7 @@ def spotify_login(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-        'scope': 'user-read-email user-read-recently-played',
+        'scope': 'user-read-email user-read-recently-played user-top-read',
         'state': state,
     }
     
@@ -129,6 +129,38 @@ def get_user_recently_played(request, limit=10, after=None, before=None):
     else:
         return_data = {"Error": {response.status_code}, "Text": response.text}
     return return_data
+
+def get_user_top(request, type, term="short_term", limit=15):
+    '''
+    Queries Spotify API for user's top tracks or artist
+
+    Parameters:
+        request
+        type (string) : Either "tracks" or "artists"
+        term (string) : "short_term" - 4 weeks, "medium_term" - 6 months, "long_term" - 1 year
+        limit (int) : Limit number of results
+    '''
+
+    url = f"https://api.spotify.com/v1/me/top/{type}"
+    data = {
+        "time_range": term,
+        "limit": limit,
+    }
+
+    access_token = request.session['spotify_access_token']
+    header = {'Authorization': f'Bearer {access_token}',}
+    response = requests.get(url, headers=header, params=data)
+    if response.status_code == 200:
+        return_data = response.json()
+    else:
+        return_data = {"Error": {response.status_code}, "Text": response.text}
+    return return_data
+
+def create_wrap(request, term="short_term"):
+    # Create a wrap object based off the user's top tracks and artists
+    top_artists = get_user_top(request, type="artists", term=term)
+    top_songs = get_user_top(request, type="tracks", term=term)
+    #Wrap.objects.create(user=request.user, top_15=None, top_artist=top_artists, top_songs=top_songs)
 
 @login_required
 def dashboard(request):

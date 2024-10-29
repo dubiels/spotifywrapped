@@ -15,4 +15,5 @@ urlpatterns = [
     path('play-song-preview/<str:track_id>/', views.play_song_preview, name='play_song_preview'),
     path('logout/', views.logout_view, name='logout'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path("create-wrap/<str:term>", views.create_wrap, name="create_wrap"),
 ]

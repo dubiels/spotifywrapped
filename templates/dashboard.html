@@ -1,6 +1,82 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <h1>{{ user.first_name }}'s Dashboard</h1>
+
+<!-- Top Tracks -->
+<section>
+    <h2>Your Top Tracks</h2>
+    <label for="timeframe-select">Select Time Frame:</label>
+    <select id="timeframe-select">
+        <option value="short_term">Last 4 Weeks</option>
+        <option value="medium_term" selected>Last 6 Months</option>
+        <option value="long_term">All Time</option>
+    </select>
+    <ul id="top-tracks-list">
+      {% for track in top_tracks %}
+        <li>
+          <strong>{{ track.name }}</strong> by {{ track.artist }}<br>
+          Album: {{ track.album }}<br>
+          {% if track.preview_url %}
+            <a href="{{ track.preview_url }}" target="_blank">Listen to Preview</a>
+          {% else %}
+            Preview not available
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>No top tracks available.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+<!-- Top Artists -->
+<section>
+  <h2>Your Top Artists</h2>
+  <ul>
+    {% for artist in top_artists %}
+    <li>{{ artist }}</li>
+    {% empty %}
+    <li>No top artists available.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- Top Genres -->
+<section>
+  <h2>Your Top Genres</h2>
+  <ul>
+    {% for genre in top_genres %}
+    <li>{{ genre }}</li>
+    {% empty %}
+    <li>No top genres available.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script>
+    document.getElementById('timeframe-select').addEventListener('change', function() {
+        const timeFrame = this.value;
+
+        fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
+            .then(response => response.json())
+            .then(data => {
+                const topTracksList = document.getElementById('top-tracks-list');
+                topTracksList.innerHTML = '';  // Clear existing tracks
+
+                if (data.top_tracks && data.top_tracks.length > 0) {
+                    data.top_tracks.forEach(track => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <strong>${track.name}</strong> by ${track.artist}<br>
+                            Album: ${track.album}<br>
+                            ${track.preview_url ? `<a href="${track.preview_url}" target="_blank">Listen to Preview</a>` : 'Preview not available'}
+                        `;
+                        topTracksList.appendChild(listItem);
+                    });
+                } else {
+                    topTracksList.innerHTML = '<li>No top tracks available.</li>';
+                }
+            })
+            .catch(error => console.error('Error fetching top tracks:', error));
+    });
+</script>
 
 {% endblock %}

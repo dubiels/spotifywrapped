@@ -126,6 +126,7 @@ button:hover {
 }
 
 .genre:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    color: #22c55e
 }

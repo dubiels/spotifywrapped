@@ -9,8 +9,8 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.http import JsonResponse
 from urllib.parse import urlencode
-
-access_token = ""
+from django.conf import settings
+from django.views.decorators.http import require_GET
 
 def home(request):
     if request.user.is_authenticated:
@@ -24,6 +24,7 @@ def generate_state():
 # Login to Spotify, Spotify redirects to callback URI automatically
 def spotify_login(request):
     state = generate_state()
+    request.session.flush()
     request.session['spotify_auth_state'] = state
     spotify_auth_url = "https://accounts.spotify.com/authorize"
     
@@ -31,7 +32,7 @@ def spotify_login(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-        'scope': 'user-read-email user-read-recently-played user-top-read',
+        'scope': 'user-top-read user-read-email',
         'state': state,
     }
     
@@ -39,7 +40,7 @@ def spotify_login(request):
 
 # Spotify will redirect here after user login
 def spotify_callback(request):
-    # Trade the code spotify gives for auth token (allows app to make API calls on user's behalf)
+    print("Entered spotify_callback")
     code = request.GET.get('code')
     state = request.GET.get('state')
 
@@ -57,11 +58,15 @@ def spotify_callback(request):
 
     response = requests.post(token_url, data=payload)
     token_data = response.json()
+    print("Token Data:", token_data)
 
-    # If the token is valid, create an Account instance and fill in with info from Spotify
+    if 'scope' in token_data:
+        print("Token scopes:", token_data['scope'])
+    else:
+        print("Scope field missing in token response")
+
     if 'access_token' in token_data:
         access_token = token_data['access_token']
-
         request.session['spotify_access_token'] = access_token
 
         user_info_url = "https://api.spotify.com/v1/me"
@@ -70,6 +75,7 @@ def spotify_callback(request):
         }
         user_info_response = requests.get(user_info_url, headers=headers)
         user_info = user_info_response.json()
+        print("User Info:", user_info)
 
         spotify_email = user_info.get('email')
         spotify_username = user_info.get('id')
@@ -87,87 +93,27 @@ def spotify_callback(request):
         )
 
         login(request, user)
-
         return redirect('dashboard')
     else:
         return JsonResponse({'error': 'Failed to authenticate with Spotify', 'details': token_data}, status=400)
 
-def get_user_top_tracks(request):
-    access_token = request.session.get('spotify_access_token')
-    if not access_token:
-        return JsonResponse({'error': 'No access token available'}, status=400)
-    
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-    }
-    response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
-    
-    if response.status_code == 200:
-        top_tracks = response.json()
-        return JsonResponse(top_tracks)
-    else:
-        return JsonResponse({'error': 'Failed to fetch top tracks'}, status=400)
-    
-def get_user_recently_played(request, limit=10, after=None, before=None):
-    url = "https://api.spotify.com/v1/me/player/recently-played"
-    if after != None and before != None:
-        data = {
-            "limit": limit,
-            "after": after,
-            "before": before,
-        }
-    else:
-        data = {
-            "limit": limit
-        }
-
-    access_token = request.session['spotify_access_token']
-    header = {'Authorization': f'Bearer {access_token}',}
-    response = requests.get(url, headers=header, params=data)
-    if response.status_code == 200:
-        return_data = response.json()
-    else:
-        return_data = {"Error": {response.status_code}, "Text": response.text}
-    return return_data
-
-def get_user_top(request, type, term="short_term", limit=15):
-    '''
-    Queries Spotify API for user's top tracks or artist
-
-    Parameters:
-        request
-        type (string) : Either "tracks" or "artists"
-        term (string) : "short_term" - 4 weeks, "medium_term" - 6 months, "long_term" - 1 year
-        limit (int) : Limit number of results
-    '''
-
-    url = f"https://api.spotify.com/v1/me/top/{type}"
-    data = {
-        "time_range": term,
-        "limit": limit,
-    }
-
-    access_token = request.session['spotify_access_token']
-    header = {'Authorization': f'Bearer {access_token}',}
-    response = requests.get(url, headers=header, params=data)
-    if response.status_code == 200:
-        return_data = response.json()
-    else:
-        return_data = {"Error": {response.status_code}, "Text": response.text}
-    return return_data
-
-def create_wrap(request, term="short_term"):
-    # Create a wrap object based off the user's top tracks and artists
-    top_artists = get_user_top(request, type="artists", term=term)
-    top_songs = get_user_top(request, type="tracks", term=term)
-    #Wrap.objects.create(user=request.user, top_15=None, top_artist=top_artists, top_songs=top_songs)
-
 @login_required
 def dashboard(request):
-    # spotify_data = SpotifyListeningData.objects.filter(user=request.user)
-    spotify_data = get_user_recently_played(request)
-    full_name = request.user.full_name()
-    return render(request, 'dashboard.html', context={'spotify_data': spotify_data, 'full_name': full_name})
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Spotify access token missing'}, status=401)
+
+    top_artists = get_top_artists(access_token)
+    top_genres = get_top_genres(access_token)
+    top_tracks = get_user_top_tracks(access_token)
+
+    context = {
+        'top_artists': top_artists,
+        'top_genres': top_genres,
+        'top_tracks': top_tracks,
+    }
+
+    return render(request, 'dashboard.html', context)
 
 @login_required
 def past_wraps(request):
@@ -190,14 +136,6 @@ def delete_account(request):
         request.user.delete()
         return redirect('signup')
     return render(request, 'delete_account.html')
-
-@login_required
-def play_song_preview(request, track_id):
-    spotify_data = SpotifyListeningData.objects.filter(user=request.user, spotify_id=track_id).first()
-    if not spotify_data or not spotify_data.preview_url:
-        return JsonResponse({'error': 'Preview unavailable'}, status=400)
-
-    return JsonResponse({'preview_url': spotify_data.preview_url})
 
 @login_required
 def like_post(request, post_id):
@@ -238,3 +176,82 @@ def toggle_dark_mode(request):
     settings.toggle_dark_mode()
     
     return JsonResponse({'dark_mode': settings.dark_mode})
+
+def get_top_artists(access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    params = {
+        'limit': 10,
+        'time_range': 'medium_term',
+    }
+
+    response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        top_artists = [{
+            'name': artist['name'],
+            'image_url': artist['images'][0]['url'] if artist['images'] else None
+        } for artist in data.get('items', [])]
+        return top_artists
+    else:
+        print("Error fetching top artists:", response.json())
+        return []
+
+def get_top_genres(access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    params = {
+        'limit': 50,
+        'time_range': 'medium_term',
+    }
+
+    response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        top_genres = list({genre for artist in data.get('items', []) for genre in artist.get('genres', [])})
+        return top_genres
+    else:
+        print("Error fetching top genres:", response.json())
+        return []
+
+@require_GET
+@login_required
+def fetch_top_tracks(request):
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Spotify access token missing'}, status=401)
+
+    time_frame = request.GET.get('time_frame', 'medium_term')
+    top_tracks = get_user_top_tracks(access_token, limit=15, time_range=time_frame)
+
+    return JsonResponse({'top_tracks': top_tracks})
+
+def about(request):
+    return render(request, 'about.html')
+
+def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    params = {
+        'limit': limit,
+        'time_range': time_range,
+    }
+
+    response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        top_tracks = [{
+            'name': track['name'],
+            'artist': track['artists'][0]['name'],
+            'album': track['album']['name'],
+            'preview_url': track.get('preview_url'),
+            'album_cover_url': track['album']['images'][0]['url'] if track['album']['images'] else None
+        } for track in data.get('items', [])]
+        return top_tracks
+    else:
+        print("Error fetching top tracks:", response.json())
+        return []

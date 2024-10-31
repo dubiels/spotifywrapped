@@ -4,3 +4,6 @@ accounts/.DS_Store
 spotifyWrapped/__pycache__/
 .DS_Store
 .env
+.venv
+*.venv
+./venv

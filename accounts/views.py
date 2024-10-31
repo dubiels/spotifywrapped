@@ -32,7 +32,7 @@ def spotify_login(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-        'scope': 'user-top-read user-read-email',
+        'scope': 'user-top-read user-read-email streaming user-read-private user-modify-playback-state',
         'state': state,
     }
     
@@ -111,6 +111,7 @@ def dashboard(request):
         'top_artists': top_artists,
         'top_genres': top_genres,
         'top_tracks': top_tracks,
+        'access_token': access_token,
     }
 
     return render(request, 'dashboard.html', context)
@@ -229,7 +230,8 @@ def fetch_top_tracks(request):
     return JsonResponse({'top_tracks': top_tracks})
 
 def about(request):
-    return render(request, 'about.html')
+    context = {"access_token": request.session.get('spotify_access_token')}
+    return render(request, 'about.html', context)
 
 def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     headers = {

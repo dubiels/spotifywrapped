@@ -1,69 +1,103 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" {% if request.user.is_authenticated and request.user.usersettings.dark_mode %}class="dark-mode"{% endif %}>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html
+  lang="en"
+  {%
+  if
+  request.user.is_authenticated
+  and
+  request.user.usersettings.dark_mode
+  %}class="dark-mode"
+  {%
+  endif
+  %}
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Wrapify{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{% static 'script.js' %}" defer></script>
-</head>
-<body class="min-h-screen flex flex-col dark:bg-gradient-to-r from-black via-emerald-950 to-black dark:text-white font-sans" id="theme">
-
+  </head>
+  <body
+    class="min-h-screen flex flex-col dark:bg-[#111111] dark:text-white font-sans"
+    id="theme"
+  >
     <!-- Navbar -->
     <header class="w-full flex justify-between items-center py-6 px-4">
-        <div class="flex items-center">
-            <!-- <img src="{% static 'logo.svg' %}" alt="Wrapify logo" class="w-8 h-8 mr-2"> -->
-            <h1 class="text-2xl font-bold">Wrapify</h1>
-        </div>
-        <div class="flex items-center space-x-6">
-            <a href="#" class="text-lg">About</a>
-            <!-- TODO: Dark Mode Toggle -->
-            
-            <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
-        </div>
+      <div class="flex items-center">
+        <!-- <img src="{% static 'logo.svg' %}" alt="Wrapify logo" class="w-8 h-8 mr-2"> -->
+        <h1 class="text-2xl font-bold">Wrapify</h1>
+      </div>
+      <div class="flex items-center space-x-6">
+        <a href="{% url 'about' %}" class="text-lg">About</a>
+        <!-- TODO: Dark Mode Toggle -->
+
+        <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
+      </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col items-center justify-center text-center">
-        {% block content %}
-        {% endblock %}
+    <main
+      class="flex-grow flex flex-col items-center justify-center text-center"
+    >
+      {% block content %} {% endblock %}
     </main>
 
     <!-- Footer -->
     <footer class="text-center py-4 text-sm">
-        <p>Made by Esther Park, Karolina Dubiel, Sabrina Zhu, and Shreyas Basavatia</p>
-        <a href="#" class="underline">Contact Us</a>
+      <p>
+        Made by Esther Park, Karolina Dubiel, Sabrina Zhu, Shreyas Basavatia and
+        Aakrishtaa Kumar
+      </p>
+      <a href="#" class="underline">Contact Us</a>
     </footer>
 
     <!-- Dark Mode Toggle Script -->
     <script>
-        const toggleTheme = document.getElementById('toggle-dark-mode');
-        const theme = document.body;
-        const toggleIcon = document.getElementById('toggleIcon');
+      const toggleTheme = document.getElementById("toggle-dark-mode");
+      const theme = document.body;
+      const toggleIcon = document.getElementById("toggleIcon");
 
-        toggleTheme.addEventListener('click', () => {
-            theme.classList.toggle('dark');
-            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      toggleTheme.addEventListener("click", () => {
+        theme.classList.toggle("dark");
+        const csrfToken = document.querySelector(
+          'input[name="csrfmiddlewaretoken"]'
+        ).value;
 
-            // Optional: Make an AJAX request to update user preference
-            fetch("{% url 'toggle_dark_mode' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                body: JSON.stringify({ dark_mode: theme.classList.contains('dark') }),
-            });
-
-            if (theme.classList.contains('dark')) {
-                toggleIcon.setAttribute('d', 'M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1m15.36 4.95l-.71-.71M6.05 6.05l-.71-.71m12.02 12.02l-.71-.71M6.05 17.95l-.71-.71m12.02-12.02l-.71-.71m-6.34 6.34A4 4 0 1012 8a4 4 0 000 8z');
-            } else {
-                toggleIcon.setAttribute('d', 'M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1m15.36 4.95l-.71-.71M6.05 6.05l-.71-.71m12.02 12.02l-.71-.71M6.05 17.95l-.71-.71m12.02-12.02l-.71-.71m-6.34 6.34A4 4 0 1012 8a4 4 0 000 8z');
-            }
+        // Optional: Make an AJAX request to update user preference
+        fetch("{% url 'toggle_dark_mode' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({ dark_mode: theme.classList.contains("dark") }),
         });
-    </script>
 
-</body>
+        if (theme.classList.contains("dark")) {
+          toggleIcon.setAttribute(
+            "d",
+            "M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1m15.36 4.95l-.71-.71M6.05 6.05l-.71-.71m12.02 12.02l-.71-.71M6.05 17.95l-.71-.71m12.02-12.02l-.71-.71m-6.34 6.34A4 4 0 1012 8a4 4 0 000 8z"
+          );
+        } else {
+          toggleIcon.setAttribute(
+            "d",
+            "M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1m15.36 4.95l-.71-.71M6.05 6.05l-.71-.71m12.02 12.02l-.71-.71M6.05 17.95l-.71-.71m12.02-12.02l-.71-.71m-6.34 6.34A4 4 0 1012 8a4 4 0 000 8z"
+          );
+        }
+      });
+
+      let audio = null;
+
+      function playPreview(previewUrl) {
+        if (audio) {
+          audio.pause();
+        }
+        audio = new Audio(previewUrl);
+        audio.play();
+      }
+    </script>
+  </body>
 </html>

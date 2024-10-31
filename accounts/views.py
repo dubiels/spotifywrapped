@@ -186,7 +186,10 @@ def get_top_artists(access_token):
     response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
     if response.status_code == 200:
         data = response.json()
-        top_artists = [artist['name'] for artist in data.get('items', [])]
+        top_artists = [{
+            'name': artist['name'],
+            'image_url': artist['images'][0]['url'] if artist['images'] else None
+        } for artist in data.get('items', [])]
         return top_artists
     else:
         print("Error fetching top artists:", response.json())
@@ -222,6 +225,9 @@ def fetch_top_tracks(request):
 
     return JsonResponse({'top_tracks': top_tracks})
 
+def about(request):
+    return render(request, 'about.html')
+
 def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -240,6 +246,7 @@ def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
             'artist': track['artists'][0]['name'],
             'album': track['album']['name'],
             'preview_url': track.get('preview_url'),
+            'album_cover_url': track['album']['images'][0]['url'] if track['album']['images'] else None
         } for track in data.get('items', [])]
         return top_tracks
     else:

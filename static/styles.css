@@ -1,6 +1,27 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=SUSE:wght@100..800&family=Zain:wght@200;300;400;700;800;900&display=swap');
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {    
+    font-family: 'SUSE', sans-serif;
+    font-weight: 800;
+}
+
+* {
+    font-family: 'SUSE', sans-serif;
+}
+
 body {
     background-color: white;
     color: black;
+}
+
+h1 {
+    font-weight: 900;
 }
 
 body.dark-mode {

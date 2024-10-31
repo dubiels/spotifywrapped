@@ -2,6 +2,8 @@
 
 TEMPORARY SECTION (TODOs for Dashboard -- Karolina)
 - Make the play button turn into a pause button when the music is playing
+- Make top artists update for each time period
+- Make top genres update for each time period
 - --> add option to pause music preview
 - Fix indentation issue with song display
 - Add hover effect for top Artists section

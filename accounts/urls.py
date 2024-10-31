@@ -12,7 +12,10 @@ urlpatterns = [
     path('follow-user/<int:user_id>/', views.follow_user, name='follow_user'),
     path('followed-posts/', views.followed_posts, name='followed_posts'),
     path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
-    path('play-song-preview/<str:track_id>/', views.play_song_preview, name='play_song_preview'),
     path('logout/', views.logout_view, name='logout'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('top-artists/', views.get_top_artists, name='top_artists'),
+    path('top-genres/', views.get_top_genres, name='top_genres'),
+    path('fetch_top_tracks/', views.fetch_top_tracks, name='fetch_top_tracks'),
+    path('about/', views.about, name='about'),
 ]

@@ -26,3 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        let value = this.getAttribute('data-value');
+        document.querySelectorAll('.star').forEach(s => {
+            s.classList.remove('selected');
+            if (s.getAttribute('data-value') <= value) {
+                s.classList.add('selected');
+            }
+        });
+    });
+});

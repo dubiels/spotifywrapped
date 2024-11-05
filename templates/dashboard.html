@@ -5,20 +5,24 @@
     <h1 class="text-8xl font-bold">{{ user.first_name}}'s Wrapped</h1>
     <div class="flex justify-center items-center mt-4 space-x-2">
       <span class="text-lg">Time period:</span>
-      <select
-        id="timeframe-select"
-        class="bg-black text-gray-400 border border-gray-600 rounded p-1 focus:ring-2 focus:ring-green-500"
-      >
-        <option value="short_term">Last 4 Weeks</option>
-        <option value="medium_term" selected>Last 6 Months</option>
-        <option value="long_term">All Time</option>
-      </select>
-      <!-- <button class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">Share</button> -->
+      <form method="POST">
+        {% csrf_token %}
+          <select
+            id="timeframe_select"
+            name="timeframe_select"
+            class="bg-black text-gray-400 border border-gray-600 rounded p-1 focus:ring-2 focus:ring-green-500"
+          >
+            <option value="short_term">Last 4 Weeks</option>
+            <option value="medium_term" selected>Last 6 Months</option>
+            <option value="long_term">All Time</option>
+          </select>
+          <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">Create</button>
+      </form>
     </div>
   </div>
 
   <!-- Two-column layout -->
-  <div
+  <divt
     class="flex flex-col md:flex-row justify-between space-y-8 md:space-y-0 md:space-x-8"
   >
     <!-- Top Songs Column (Left) -->
@@ -111,6 +115,25 @@
       </div>
       {% empty %}
       <p class="text-gray-500">No top genres available.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+
+  <section class="mt-10"></section>
+    <h2 class="text-2xl font-semibold mb-4 text-center">User's Wraps</h2>
+    <div class="flex justify-center space-x-4 flex-wrap">
+      {% for wrap in wraps %}
+      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
+        {{ wrap.overview.user }}
+        {{ wrap.overview.title }}
+        {{ wrap.overview.created_at }}
+        {{ wrap.top_tracks }}
+        {{ wrap.top_artists }}
+        {{ wrap.overview.top_genres }}
+      </div>
+      {% empty %}
+      <p class="text-gray-500">No wraps available.</p>
       {% endfor %}
     </div>
   </section>

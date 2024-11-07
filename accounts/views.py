@@ -225,6 +225,9 @@ def fetch_top_tracks(request):
 
     return JsonResponse({'top_tracks': top_tracks})
 
+def about(request):
+    return render(request, 'about.html')
+
 def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     headers = {
         'Authorization': f'Bearer {access_token}',

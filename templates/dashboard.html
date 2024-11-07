@@ -105,7 +105,7 @@
     <h2 class="text-2xl font-semibold mb-4 text-center">Top genres:</h2>
     <div class="flex justify-center space-x-4 flex-wrap">
       {% for genre in top_genres %}
-      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
+      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2 genre">
         {{ genre }}
       </div>
       {% empty %}
@@ -116,127 +116,58 @@
 </div>
 
 <script>
+  document.getElementById('timeframe-select').addEventListener('change', function() {
+      const timeFrame = this.value;
+      fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
+          .then(response => response.json())
+          .then(data => {
+              const topTracksList = document.getElementById('top-tracks-list');
+              topTracksList.innerHTML = ''; // Clear existing tracks
+              if (data.top_tracks && data.top_tracks.length > 0) {
+                  data.top_tracks.forEach(track => {
+                      const listItem = document.createElement('li');
+                      listItem.className = 'flex items-center justify-between py-4 border-b border-gray-700';
+                      listItem.innerHTML = `
+                          <div class="flex items-center space-x-4">
+                              ${track.album_cover_url 
+                                  ? `<img src="${track.album_cover_url}" alt="${track.album}" class="w-12 h-12 rounded object-cover">`
+                                  : `<div class="w-12 h-12 rounded bg-gray-700 flex items-center justify-center text-white">
+                                      ${track.name.charAt(0).toUpperCase()}
+                                     </div>`
+                              }
+                              <div>
+                                  <div class="text-lg font-semibold">${track.name}</div>
+                                  <div class="text-gray-400">${track.artist}</div>
+                              </div>
+                          </div>
+                          <div class="flex items-center">
+                              <div class="text-gray-400 text-sm mr-4">${track.album}</div>
+                              ${track.preview_url 
+                                  ? `<button onclick="playPreview('${track.preview_url}')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
+                                      ▷
+                                     </button>`
+                                  : `<span class="text-gray-500">No preview available</span>`
+                              }
+                          </div>
+                      `;
+                      topTracksList.appendChild(listItem);
+                  });
+              } else {
+                  topTracksList.innerHTML = '<li class="text-gray-500">No top tracks available.</li>';
+              }
+          })
+          .catch(error => console.error('Error fetching top tracks:', error));
+  });
+  
   let audio = null;
-
+  
   function playPreview(previewUrl) {
-    if (audio) {
-      audio.pause();
-    }
-    audio = new Audio(previewUrl);
-    audio.play();
+      if (audio) {
+          audio.pause();
+      }
+      audio = new Audio(previewUrl);
+      audio.play();
   }
-</script>
-
-<script>
-  document
-    .getElementById("timeframe-select")
-    .addEventListener("change", function () {
-      const timeFrame = this.value;
-
-      fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const topTracksList = document.getElementById("top-tracks-list");
-          topTracksList.innerHTML = ""; // Clear existing tracks
-
-          if (data.top_tracks && data.top_tracks.length > 0) {
-            data.top_tracks.forEach((track) => {
-              const listItem = document.createElement("li");
-              listItem.classList.add(
-                "bg-gray-800",
-                "hover:bg-gray-700",
-                "rounded-lg",
-                "p-4",
-                "transition"
-              );
-              listItem.innerHTML = `
-                            <div class="flex items-center space-x-4">
-                                <img src="${track.album_cover_url}" alt="${
-                track.album
-              }" class="w-12 h-12 rounded">
-                                <div>
-                                    <div class="text-lg font-semibold">${
-                                      track.name
-                                    }</div>
-                                    <div class="text-gray-400">by ${
-                                      track.artist
-                                    }</div>
-                                    <div class="text-gray-500">Album: ${
-                                      track.album
-                                    }</div>
-                                </div>
-                            </div>
-                            ${
-                              track.preview_url
-                                ? `<a href="${track.preview_url}" target="_blank" class="text-green-400 hover:underline mt-2 inline-block">Listen to Preview</a>`
-                                : '<span class="text-gray-500 mt-2 inline-block">Preview not available</span>'
-                            }
-                        `;
-              topTracksList.appendChild(listItem);
-            });
-          } else {
-            topTracksList.innerHTML =
-              '<li class="text-gray-500">No top tracks available.</li>';
-          }
-        })
-        .catch((error) => console.error("Error fetching top tracks:", error));
-    });
-</script>
-
-<script>
-  document
-    .getElementById("timeframe-select")
-    .addEventListener("change", function () {
-      const timeFrame = this.value;
-
-      fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const topTracksList = document.getElementById("top-tracks-list");
-          topTracksList.innerHTML = ""; // Clear existing tracks
-
-          if (data.top_tracks && data.top_tracks.length > 0) {
-            data.top_tracks.forEach((track) => {
-              const listItem = document.createElement("li");
-              listItem.classList.add(
-                "bg-gray-800",
-                "hover:bg-gray-700",
-                "rounded-lg",
-                "p-4",
-                "transition"
-              );
-              listItem.innerHTML = `
-                            <div class="flex items-center space-x-4">
-                                <img src="${track.album_cover_url}" alt="${
-                track.album
-              }" class="w-12 h-12 rounded">
-                                <div>
-                                    <div class="text-lg font-semibold">${
-                                      track.name
-                                    }</div>
-                                    <div class="text-gray-400">by ${
-                                      track.artist
-                                    }</div>
-                                    <div class="text-gray-500">Album: ${
-                                      track.album
-                                    }</div>
-                                </div>
-                            </div>
-                            ${
-                              track.preview_url
-                                ? `<a href="${track.preview_url}" target="_blank" class="text-green-400 hover:underline mt-2 inline-block">Listen to Preview</a>`
-                                : '<span class="text-gray-500 mt-2 inline-block">Preview not available</span>'
-                            }
-                        `;
-              topTracksList.appendChild(listItem);
-            });
-          } else {
-            topTracksList.innerHTML =
-              '<li class="text-gray-500">No top tracks available.</li>';
-          }
-        })
-        .catch((error) => console.error("Error fetching top tracks:", error));
-    });
-</script>
+  </script>
 
 {% endblock %}

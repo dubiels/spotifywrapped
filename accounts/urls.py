@@ -17,4 +17,5 @@ urlpatterns = [
     path('top-artists/', views.get_top_artists, name='top_artists'),
     path('top-genres/', views.get_top_genres, name='top_genres'),
     path('fetch_top_tracks/', views.fetch_top_tracks, name='fetch_top_tracks'),
+    path('about/', views.about, name='about'),
 ]

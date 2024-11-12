@@ -30,9 +30,20 @@
         <!-- <img src="{% static 'logo.svg' %}" alt="Wrapify logo" class="w-8 h-8 mr-2"> -->
         <h1 class="text-2xl font-bold">Wrapify</h1>
       </div>
-      <div class="flex items-center space-x-6">
-        <a href="{% url 'about' %}" class="text-lg">About</a>
         <!-- TODO: Dark Mode Toggle -->
+        <div class="container1" 
+          <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label>
+          
+          <h10>Light / Dark Theme</h1>
+        </div>
+
+        <script src="{% static 'script.js' %}" defer></script>
+
+        <div class="flex items-center space-x-6">
+          <a href="{% url 'about' %}" class="text-lg">About</a>
 
         <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
       </div>
@@ -64,7 +75,11 @@
         theme.classList.toggle("dark");
         const csrfToken = document.querySelector(
           'input[name="csrfmiddlewaretoken"]'
-        ).value;
+        ).value; 
+
+
+
+
 
         // Optional: Make an AJAX request to update user preference
         fetch("{% url 'toggle_dark_mode' %}", {

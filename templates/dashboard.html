@@ -196,14 +196,14 @@ function playPreview(button, previewUrl) {
             button.innerText = "❚❚"; // Change to pause icon
         } else {
             audio.pause();
-            button.innerText = "▷"; // Change back to play icon
+            button.innerText = "▶"; // Change back to play icon
         }
     } else {
         // Pause any existing audio and reset the button
         if (audio) {
             audio.pause();
             if (currentlyPlayingButton) {
-                currentlyPlayingButton.innerText = "▷"; // Reset previous buttons to play icon
+                currentlyPlayingButton.innerText = "▶"; // Reset previous buttons to play icon
             }
         }
         
@@ -217,7 +217,7 @@ function playPreview(button, previewUrl) {
 
         // Reset icon when audio ends
         audio.onended = () => {
-            button.innerText = "▷";
+            button.innerText = "▶";
             currentlyPlayingButton = null;
         };
     }

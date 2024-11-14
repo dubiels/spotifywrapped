@@ -37,6 +37,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
+    friends = models.ManyToManyField("self", blank=True, symmetrical=True)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -140,3 +142,4 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback {self.id} - Rating: {self.rating}"
+    

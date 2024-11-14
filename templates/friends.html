@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+
+<div>
+    <div clas>
+        <form method="POST">
+            {% csrf_token %}
+              <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">Create Post</button>
+          </form>
+    </div>
+    <div class="py-10">
+        All of your posts
+        {% for post in posts %}
+        <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
+            {{ post.user }}
+            {{ post.created_at }}
+            {{ post.wrap }}
+            {{ post.liked_by }}
+          </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

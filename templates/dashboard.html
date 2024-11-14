@@ -140,7 +140,7 @@
 </div>
 
 <script>
-  document.getElementById('timeframe-select').addEventListener('change', function() {
+  document.getElementById('timeframe_select').addEventListener('change', function() {
       const timeFrame = this.value;
       fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
           .then(response => response.json())

@@ -37,6 +37,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
+    friends = models.ManyToManyField("self", blank=True, symmetrical=True)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -102,6 +104,36 @@ class UserSettings(models.Model):
 
     def __str__(self):
         return f"{self.user.email} settings"
+    
+class Artist(models.Model):
+    name = models.CharField(max_length=200)
+    image_url = models.CharField(max_length=400)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Song(models.Model):
+    name = models.CharField(max_length=200)
+    artist = models.ForeignKey(Artist, default="None", on_delete=models.SET_DEFAULT)
+    album = models.CharField(max_length=200)
+    preview_url = models.CharField(max_length=400)
+    album_cover_url = models.CharField(max_length=400)
+
+    def __str__(self):
+        return f"NAME: {self.name} ARTIST: {self.artist.name} ALBUM: {self.album}"
+
+class Wrap(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    top_tracks = models.ManyToManyField(Song)
+    top_artists = models.ManyToManyField(Artist)
+
+    # Comma separated values
+    top_genres = models.CharField(max_length=2000)
+
+    def __str__(self):
+        return f"{self.user.email}'s Wrap {self.title} created at: {self.created_at}"
 
 class Feedback(models.Model):
     text = models.TextField()
@@ -110,3 +142,4 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback {self.id} - Rating: {self.rating}"
+    

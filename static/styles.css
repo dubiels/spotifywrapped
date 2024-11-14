@@ -267,3 +267,61 @@ button:hover {
     border-radius: 5px;
     cursor: pointer;
 }
+
+/* Wraps Section */
+
+
+.wrapper-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .wrap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .wrap-card {
+    background-color: #212936e0;
+    margin: 5%;
+    padding: 30px;
+    border-radius: 10px;
+    transition: transform 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .wrap-card:hover {
+    transform: scale(1.01);
+  }
+  
+  .wrap-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .wrap-date {
+    font-size: 0.9rem;
+    color: #888888;
+    margin-bottom: 2rem;
+  }
+  
+  .wrap-content {
+    margin-top: 1rem;
+  }
+  
+  .content-heading {
+    font-size: 1rem;
+    color: #aaaaaa;
+    margin: 0.5rem 0;
+    font-weight: bold;
+  }
+  

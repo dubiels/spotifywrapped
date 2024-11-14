@@ -132,3 +132,11 @@ class Wrap(models.Model):
 
     def __str__(self):
         return f"{self.user.email}'s Wrap {self.title} created at: {self.created_at}"
+
+class Feedback(models.Model):
+    text = models.TextField()
+    rating = models.PositiveSmallIntegerField(default=0) 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback {self.id} - Rating: {self.rating}"

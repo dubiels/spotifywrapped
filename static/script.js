@@ -26,3 +26,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        let value = this.getAttribute('data-value');
+        document.querySelectorAll('.star').forEach(s => {
+            s.classList.remove('selected');
+            if (s.getAttribute('data-value') <= value) {
+                s.classList.add('selected');
+            }
+        });
+    });
+});
+
+const toggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Check local storage for theme preference
+if (localStorage.getItem('theme') === 'light') {
+    body.classList.remove('dark-theme');
+    toggle.checked = true; // Set toggle to light mode if stored
+} else {
+    // Default to dark theme
+    body.classList.add('dark-theme');
+    toggle.checked = false; // Default is unchecked (dark theme)
+}
+
+// Event listener for theme toggle
+toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+        body.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+    }
+});  

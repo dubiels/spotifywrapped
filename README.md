@@ -1,5 +1,13 @@
 # Spotify Wrapped
 
+TEMPORARY SECTION (TODOs for Dashboard -- Karolina)
+- Make the play button turn into a pause button when the music is playing
+- --> add option to pause music preview
+- Fix indentation issue with song display
+- Add hover effect for top Artists section
+- Add logout button
+- Fix header
+
 ## Overview
 
 This README provides a description of each HTML page, folder structure, and instructions for running the Django project locally.

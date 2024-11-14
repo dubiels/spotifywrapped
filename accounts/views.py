@@ -8,11 +8,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from .models import *
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from urllib.parse import urlencode
 from django.conf import settings
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
+from .forms import FeedbackForm
 
 def home(request):
     if request.user.is_authenticated:
@@ -297,3 +298,18 @@ def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     else:
         print("Error fetching top tracks:", response.json())
         return []
+
+def feedback_view(request):
+    if request.method == 'POST':
+        # print("Form submission detected")
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # print("Form is valid and feedback saved") 
+            return HttpResponseRedirect('/about/?submitted=true')
+        else:
+            print("Form is invalid:", form.errors)
+    else:
+        form = FeedbackForm()
+    
+    return render(request, 'about.html', {'form': form})

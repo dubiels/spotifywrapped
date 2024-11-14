@@ -18,4 +18,6 @@ urlpatterns = [
     path('top-genres/', views.get_top_genres, name='top_genres'),
     path('fetch_top_tracks/', views.fetch_top_tracks, name='fetch_top_tracks'),
     path('about/', views.feedback_view, name='about'),
+    path('friends/', views.friends, name="friends"),
+    path('new_post/', views.new_post, name="new_post"),
 ]

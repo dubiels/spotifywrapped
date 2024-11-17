@@ -336,14 +336,34 @@ def add_friend(friend_name, user):
     return
 
 def friends(request):
+    # Retrieve all the users and their friends' posts
     user_posts = request.user.posts.all()
-    print("USER POSTS", user_posts)
+    friends = request.user.friends.all()
+    all_posts = user_posts
+    for friend in friends:
+        all_posts = all_posts | friend.posts.all()
+
     context = {
-        "posts": user_posts,
+        "posts": all_posts,
+        "user": request.user,
     }
 
     if request.method == "POST":
-        return redirect("/new_post/")
+        # Redirect to new post page for creating a new post
+        if "create_post" in request.POST.keys():
+            return redirect("/new_post/")
+        # Add the user to the liked by field of the post
+        elif "favorite" in request.POST.keys():
+            post_id = request.POST.get("post_id")
+            print("POST ID:", post_id)
+            liked_post = Post.objects.get(id=post_id)
+            if liked_post.liked_by.filter(id=request.user.id).exists():
+                liked_post.liked_by.remove(request.user)
+                #print("removed", liked_post.liked_by.all())
+            else:
+                liked_post.liked_by.add(request.user)
+                #print("added", liked_post.liked_by.all())
+            return redirect("/friends/")
 
     return render(request, 'friends.html', context)
 

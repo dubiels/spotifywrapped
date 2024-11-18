@@ -270,52 +270,81 @@ button:hover {
 
 /* Wraps Section */
 
-
+/* Wrapper Section Styling */
 .wrapper-section {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px;
+    background-color: #f7f9fc;
   }
   
   .section-title {
     text-align: center;
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #333;
   }
   
+  /* Wrap Grid Styling */
   .wrap-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
   }
   
+  /* Wrap Card Styling */
   .wrap-card {
-    background-color: #212936e0;
-    margin: 5%;
+    background-color: #2a2f3b;
     padding: 30px;
-    border-radius: 10px;
-    transition: transform 0.3s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #ffffff;
   }
   
   .wrap-card:hover {
-    transform: scale(1.01);
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   }
   
+  /* Wrap Title and Date Styling */
   .wrap-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffd700;
+    margin-bottom: 0.8rem;
   }
   
   .wrap-date {
-    font-size: 0.9rem;
-    color: #888888;
-    margin-bottom: 2rem;
+    font-size: 1rem;
+    color: #b0b3b8;
+    margin-bottom: 1.5rem;
   }
   
+  /* Content Heading and List Styling */
   .wrap-content {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .content-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e8f8ff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .track-list, .artist-list, .genre-list {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #d1d5db;
+  }
+  
+  .no-wraps-message {
+    text-align: center;
+    color: #6b7280;
+    font-size: 1.2rem;
+    margin-top: 2rem;
   }
   
   .content-heading {

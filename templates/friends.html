@@ -4,6 +4,7 @@
     <div clas>
         <form method="POST">
             {% csrf_token %}
+              <input type="hidden" name="create_post" id="create_post">
               <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">Create Post</button>
           </form>
     </div>
@@ -14,8 +15,24 @@
             {{ post.user }}
             {{ post.created_at }}
             {{ post.wrap }}
-            {{ post.liked_by }}
-          </div>
+            {% for user in post.liked_by.all %}
+                {{ user.id }}
+            {% endfor %}
+            <form method="POST" action="#" class="mb-2">
+                {% csrf_token %}
+                <button type="submit" id="heartButton" name="favorite" class="flex items-center p-2 mt-4 bg-black rounded-lg shadow hover:bg-gray-200 transition duration-300">
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                  {% if user in post.liked_by.all %}
+                  <i class="fa-solid fa-heart"></i>
+                  {% else %}
+                  <i class="fa-regular fa-heart"></i>
+                  {% endif %}
+                </button>
+                <div class="text-white">
+                    Number of likes: {{ post.liked_by.all|length }}
+                </div>
+            </form>
+        </div>
         {% endfor %}
     </div>
 </div>

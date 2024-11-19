@@ -166,6 +166,8 @@ def create_wrap(access_token, time_frame, user, title="My Wrap"):
         tempWrap.top_artists.add(tempArtist)
     for i in top_tracks:
         print(i['name'])
+        if (i['preview_url'] == None):
+            i['preview_url'] = "No URL"
         artist, created = Artist.objects.get_or_create(name=i['artist'])
         tempSong, created = Song.objects.get_or_create(name=i['name'], artist=artist, album=i['album'], preview_url=i['preview_url'], album_cover_url=i['album_cover_url'])
         tempWrap.top_tracks.add(tempSong)

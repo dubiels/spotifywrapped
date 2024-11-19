@@ -1,10 +1,8 @@
 # Spotify Wrapped
 
 TEMPORARY SECTION (TODOs for Dashboard -- Karolina)
-- Make the play button turn into a pause button when the music is playing
-- --> add option to pause music preview
-- Fix indentation issue with song display
 - Add hover effect for top Artists section
+- Make top Artists update for the different time periods
 - Add logout button
 - Fix header
 

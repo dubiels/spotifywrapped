@@ -120,22 +120,35 @@ def dashboard(request):
     for i in range(len(user_wraps)):
         wraps.append({"overview": user_wraps[i], "top_tracks": user_wraps[i].top_tracks.all(), "top_artists": user_wraps[i].top_artists.all()})
 
+    friends = request.user.friends.all()
+    print("FRIENDS in DASH", friends)
+
     context = {
         'top_artists': top_artists,
         'top_genres': top_genres,
         'top_tracks': top_tracks,
         'access_token': access_token,
         'wraps': wraps,
+        'friends': friends,
+        'invalid_username': False,
     }
 
     if request.method == "POST":
-        #print("TIMEFRAME SELECT", request.POST.get("timeframe_select"))
-        create_wrap(access_token, request.POST.get("timeframe_select"), request.user)
-        return redirect("/dashboard/")
+        if "timeframe_select" in request.POST.keys():
+            #print("TIMEFRAME SELECT", request.POST.get("timeframe_select"))
+            create_wrap(access_token, request.POST.get("timeframe_select"), request.user, request.POST.get("new_wrap_name"))
+            return redirect("/dashboard/")
+        if "friend_name" in request.POST.keys() and request.POST.get("friend_name") != "":
+            valid_friend = add_friend(request.POST.get("friend_name"), request.user)
+            if valid_friend:
+                return redirect("/dashboard/")
+            else:
+                return redirect("/dashboard/")
+                context["invalid_username"] = True
 
     return render(request, 'dashboard.html', context)
 
-def create_wrap(access_token, time_frame, user):
+def create_wrap(access_token, time_frame, user, title="My Wrap"):
     top_artists = get_top_artists(access_token, time_frame=time_frame)
     #print("TOP ARTISTS WRAP\n", top_artists, "\n")
     top_genres = get_top_genres(access_token, time_frame=time_frame)
@@ -143,7 +156,7 @@ def create_wrap(access_token, time_frame, user):
     top_tracks = get_user_top_tracks(access_token, time_range=time_frame)
     #print("TOP TRACKS WRAP\n", top_tracks, "\n")
 
-    tempWrap = Wrap(user=user, title="My Wrap", top_genres=str(top_genres))
+    tempWrap = Wrap(user=user, title=title, top_genres=str(top_genres))
     tempWrap.save()
 
     for i in top_artists:
@@ -313,3 +326,70 @@ def feedback_view(request):
         form = FeedbackForm()
     
     return render(request, 'about.html', {'form': form})
+
+def add_friend(friend_name, user):
+    new_friend = Account.objects.filter(username=friend_name)
+    if not new_friend:
+        return False
+
+    user.friends.add(new_friend[0])
+    return
+
+def friends(request):
+    # Retrieve all the users and their friends' posts
+    user_posts = request.user.posts.all()
+    friends = request.user.friends.all()
+    all_posts = user_posts
+    for friend in friends:
+        all_posts = all_posts | friend.posts.all()
+
+    context = {
+        "posts": all_posts,
+        "user": request.user,
+    }
+
+    if request.method == "POST":
+        # Redirect to new post page for creating a new post
+        if "create_post" in request.POST.keys():
+            return redirect("/new_post/")
+        # Add the user to the liked by field of the post
+        elif "favorite" in request.POST.keys():
+            post_id = request.POST.get("post_id")
+            print("POST ID:", post_id)
+            liked_post = Post.objects.get(id=post_id)
+            if liked_post.liked_by.filter(id=request.user.id).exists():
+                liked_post.liked_by.remove(request.user)
+                #print("removed", liked_post.liked_by.all())
+            else:
+                liked_post.liked_by.add(request.user)
+                #print("added", liked_post.liked_by.all())
+            return redirect("/friends/")
+
+    return render(request, 'friends.html', context)
+
+
+def new_post(request):
+    user_wraps = request.user.wraps.all()
+    print(user_wraps)
+    context = {
+        "wraps": user_wraps,
+    }
+
+    # If the user wants to create a new wrap
+    if request.method == "POST":
+        # Get the wrap by its name
+        wrap_name = request.POST.get("wrap_name")
+        wrap = Wrap.objects.all().filter(user=request.user, title=wrap_name)[0]
+        
+        # Check if a post already exists with this wrap
+        for i in Post.objects.all():
+            if wrap == i.wrap:
+                return redirect("/friends/")
+
+        # Create the post if it hasn't been created already
+        tempPost = Post(user=request.user, wrap=wrap)
+        tempPost.save()
+
+        return redirect("/friends/")
+
+    return render(request, 'new_post.html', context)

@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{% static 'script.js' %}" defer></script>
+    <script src="https://kit.fontawesome.com/97589db57b.js" crossorigin="anonymous"></script>
   </head>
   <body
     class="min-h-screen flex flex-col dark:bg-[#111111] dark:text-white font-sans"
@@ -28,7 +29,10 @@
     <header class="w-full flex justify-between items-center py-6 px-4">
       <div class="flex items-center">
         <!-- <img src="{% static 'logo.svg' %}" alt="Wrapify logo" class="w-8 h-8 mr-2"> -->
-        <h1 class="text-2xl font-bold">Wrapify</h1>
+         <a href="{% url 'dashboard' %}">
+
+           <h1 class="text-2xl font-bold">Wrapify</h1>
+         </a>
       </div>
         <!-- TODO: Dark Mode Toggle -->
         <div class="container1" 
@@ -46,6 +50,7 @@
           <a href="{% url 'about' %}" class="text-lg">About</a>
 
         <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
+        <a href="{% url 'friends' %}" class="text-lg">Friends</a>
       </div>
     </header>
 
@@ -76,9 +81,6 @@
         const csrfToken = document.querySelector(
           'input[name="csrfmiddlewaretoken"]'
         ).value; 
-
-
-
 
 
         // Optional: Make an AJAX request to update user preference

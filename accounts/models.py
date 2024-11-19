@@ -38,6 +38,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
 
     friends = models.ManyToManyField("self", blank=True, symmetrical=True)
+    #posts that the user makes
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -123,7 +124,7 @@ class Song(models.Model):
         return f"NAME: {self.name} ARTIST: {self.artist.name} ALBUM: {self.album}"
 
 class Wrap(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="wraps")
     title = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     top_tracks = models.ManyToManyField(Song)
@@ -143,3 +144,8 @@ class Feedback(models.Model):
     def __str__(self):
         return f"Feedback {self.id} - Rating: {self.rating}"
     
+class Post(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="posts")
+    created_at = models.DateTimeField(auto_now_add=True)
+    wrap = models.OneToOneField(Wrap, on_delete=models.CASCADE, related_name="post_wrap")
+    liked_by = models.ManyToManyField(Account, related_name="liked_by", blank=True, null=True)

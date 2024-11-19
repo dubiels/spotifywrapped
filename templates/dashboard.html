@@ -146,7 +146,11 @@
               {% endfor %}
             </ul>
             <h3 class="content-heading">Top Genres:</h3>
-            <p class="genre-list">{{ wrap.overview.top_genres }}</p>
+            <ul class="genre-list"></ul>
+            {% for genre in top_genres %}
+              {{ genre }}
+              {% endfor %}
+              </ul>
           </div>
         </div>
       {% empty %}

@@ -1,6 +1,8 @@
 import requests
 import os
+import time
 import uuid
+import json
 from django.shortcuts import redirect
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
@@ -10,6 +12,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from urllib.parse import urlencode
 from django.conf import settings
 from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
 from .forms import FeedbackForm
 
 def home(request):
@@ -21,6 +24,7 @@ def home(request):
 def generate_state():
     return str(uuid.uuid4())
 
+# Login to Spotify, Spotify redirects to callback URI automatically
 def spotify_login(request):
     state = generate_state()
     request.session.flush()
@@ -31,14 +35,15 @@ def spotify_login(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-        'scope': 'user-top-read user-read-email',
+        'scope': 'user-top-read user-read-email streaming user-read-private user-modify-playback-state',
         'state': state,
     }
     
     return redirect(f"{spotify_auth_url}?{urlencode(params)}")
 
+# Spotify will redirect here after user login
 def spotify_callback(request):
-    print("Entered spotify_callback")
+    #print("Entered spotify_callback")
     code = request.GET.get('code')
     state = request.GET.get('state')
 
@@ -56,7 +61,7 @@ def spotify_callback(request):
 
     response = requests.post(token_url, data=payload)
     token_data = response.json()
-    print("Token Data:", token_data)
+    #print("Token Data:", token_data)
 
     if 'scope' in token_data:
         print("Token scopes:", token_data['scope'])
@@ -73,7 +78,7 @@ def spotify_callback(request):
         }
         user_info_response = requests.get(user_info_url, headers=headers)
         user_info = user_info_response.json()
-        print("User Info:", user_info)
+        #print("User Info:", user_info)
 
         spotify_email = user_info.get('email')
         spotify_username = user_info.get('id')
@@ -95,6 +100,12 @@ def spotify_callback(request):
     else:
         return JsonResponse({'error': 'Failed to authenticate with Spotify', 'details': token_data}, status=400)
 
+def get_access_token(request):
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Spotify access token missing'}, status=401)
+    return access_token
+
 @login_required
 def dashboard(request):
     access_token = request.session.get('spotify_access_token')
@@ -104,14 +115,62 @@ def dashboard(request):
     top_artists = get_top_artists(access_token)
     top_genres = get_top_genres(access_token)
     top_tracks = get_user_top_tracks(access_token)
+    user_wraps = Wrap.objects.all().filter(user=request.user)
+    wraps = []
+    for i in range(len(user_wraps)):
+        wraps.append({"overview": user_wraps[i], "top_tracks": user_wraps[i].top_tracks.all(), "top_artists": user_wraps[i].top_artists.all()})
+
+    friends = request.user.friends.all()
+    print("FRIENDS in DASH", friends)
 
     context = {
         'top_artists': top_artists,
         'top_genres': top_genres,
         'top_tracks': top_tracks,
+        'access_token': access_token,
+        'wraps': wraps,
+        'friends': friends,
+        'invalid_username': False,
     }
 
+    if request.method == "POST":
+        if "timeframe_select" in request.POST.keys():
+            #print("TIMEFRAME SELECT", request.POST.get("timeframe_select"))
+            create_wrap(access_token, request.POST.get("timeframe_select"), request.user, request.POST.get("new_wrap_name"))
+            return redirect("/dashboard/")
+        if "friend_name" in request.POST.keys() and request.POST.get("friend_name") != "":
+            valid_friend = add_friend(request.POST.get("friend_name"), request.user)
+            if valid_friend:
+                return redirect("/dashboard/")
+            else:
+                return redirect("/dashboard/")
+                context["invalid_username"] = True
+
     return render(request, 'dashboard.html', context)
+
+def create_wrap(access_token, time_frame, user, title="My Wrap"):
+    top_artists = get_top_artists(access_token, time_frame=time_frame)
+    #print("TOP ARTISTS WRAP\n", top_artists, "\n")
+    top_genres = get_top_genres(access_token, time_frame=time_frame)
+    #print("TOP GENRES WRAP\n", top_genres, "\n")
+    top_tracks = get_user_top_tracks(access_token, time_range=time_frame)
+    #print("TOP TRACKS WRAP\n", top_tracks, "\n")
+
+    tempWrap = Wrap(user=user, title=title, top_genres=str(top_genres))
+    tempWrap.save()
+
+    for i in top_artists:
+        tempArtist, created = Artist.objects.get_or_create(name=i['name'])
+        tempArtist.image_url = i['image_url']
+        tempArtist.save()
+        tempWrap.top_artists.add(tempArtist)
+    for i in top_tracks:
+        print(i['name'])
+        if (i['preview_url'] == None):
+            i['preview_url'] = "No URL"
+        artist, created = Artist.objects.get_or_create(name=i['artist'])
+        tempSong, created = Song.objects.get_or_create(name=i['name'], artist=artist, album=i['album'], preview_url=i['preview_url'], album_cover_url=i['album_cover_url'])
+        tempWrap.top_tracks.add(tempSong)
 
 @login_required
 def past_wraps(request):
@@ -175,13 +234,13 @@ def toggle_dark_mode(request):
     
     return JsonResponse({'dark_mode': settings.dark_mode})
 
-def get_top_artists(access_token):
+def get_top_artists(access_token, time_frame="medium_term"):
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
     params = {
         'limit': 10,
-        'time_range': 'medium_term',
+        'time_range': time_frame,
     }
 
     response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
@@ -196,13 +255,13 @@ def get_top_artists(access_token):
         print("Error fetching top artists:", response.json())
         return []
 
-def get_top_genres(access_token):
+def get_top_genres(access_token, time_frame="medium_term"):
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
     params = {
         'limit': 50,
-        'time_range': 'medium_term',
+        'time_range': time_frame,
     }
 
     response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers, params=params)
@@ -225,6 +284,10 @@ def fetch_top_tracks(request):
     top_tracks = get_user_top_tracks(access_token, limit=15, time_range=time_frame)
 
     return JsonResponse({'top_tracks': top_tracks})
+
+def about(request):
+    context = {"access_token": request.session.get('spotify_access_token')}
+    return render(request, 'about.html', context)
 
 def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
     headers = {
@@ -265,3 +328,70 @@ def feedback_view(request):
         form = FeedbackForm()
     
     return render(request, 'about.html', {'form': form})
+
+def add_friend(friend_name, user):
+    new_friend = Account.objects.filter(username=friend_name)
+    if not new_friend:
+        return False
+
+    user.friends.add(new_friend[0])
+    return
+
+def friends(request):
+    # Retrieve all the users and their friends' posts
+    user_posts = request.user.posts.all()
+    friends = request.user.friends.all()
+    all_posts = user_posts
+    for friend in friends:
+        all_posts = all_posts | friend.posts.all()
+
+    context = {
+        "posts": all_posts,
+        "user": request.user,
+    }
+
+    if request.method == "POST":
+        # Redirect to new post page for creating a new post
+        if "create_post" in request.POST.keys():
+            return redirect("/new_post/")
+        # Add the user to the liked by field of the post
+        elif "favorite" in request.POST.keys():
+            post_id = request.POST.get("post_id")
+            print("POST ID:", post_id)
+            liked_post = Post.objects.get(id=post_id)
+            if liked_post.liked_by.filter(id=request.user.id).exists():
+                liked_post.liked_by.remove(request.user)
+                #print("removed", liked_post.liked_by.all())
+            else:
+                liked_post.liked_by.add(request.user)
+                #print("added", liked_post.liked_by.all())
+            return redirect("/friends/")
+
+    return render(request, 'friends.html', context)
+
+
+def new_post(request):
+    user_wraps = request.user.wraps.all()
+    print(user_wraps)
+    context = {
+        "wraps": user_wraps,
+    }
+
+    # If the user wants to create a new wrap
+    if request.method == "POST":
+        # Get the wrap by its name
+        wrap_name = request.POST.get("wrap_name")
+        wrap = Wrap.objects.all().filter(user=request.user, title=wrap_name)[0]
+        
+        # Check if a post already exists with this wrap
+        for i in Post.objects.all():
+            if wrap == i.wrap:
+                return redirect("/friends/")
+
+        # Create the post if it hasn't been created already
+        tempPost = Post(user=request.user, wrap=wrap)
+        tempPost.save()
+
+        return redirect("/friends/")
+
+    return render(request, 'new_post.html', context)

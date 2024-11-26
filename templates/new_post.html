@@ -1,0 +1,16 @@
+<div class="text-black"></div>
+    <h2>New Post</h2>
+    <form method="POST">
+      {% csrf_token %}
+
+      <select id="wrap_name" name="wrap_name">
+        {% for wrap in wraps %}
+        <option value="{{ wrap.title }}">{{wrap.title}}</option>
+        {% endfor %}
+      </select>
+
+      <input type="hidden" name="rating" id="ratingInput" value="" />
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>

@@ -14,6 +14,8 @@ from django.conf import settings
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from .forms import FeedbackForm
+from datetime import timedelta
+from django.utils.timezone import now
 
 def home(request):
     if request.user.is_authenticated:
@@ -166,6 +168,8 @@ def create_wrap(access_token, time_frame, user, title="My Wrap"):
         tempWrap.top_artists.add(tempArtist)
     for i in top_tracks:
         print(i['name'])
+        if (i['preview_url'] == None):
+            i['preview_url'] = "No URL"
         artist, created = Artist.objects.get_or_create(name=i['artist'])
         tempSong, created = Song.objects.get_or_create(name=i['name'], artist=artist, album=i['album'], preview_url=i['preview_url'], album_cover_url=i['album_cover_url'])
         tempWrap.top_tracks.add(tempSong)
@@ -343,9 +347,19 @@ def friends(request):
     for friend in friends:
         all_posts = all_posts | friend.posts.all()
 
+    filter_value = request.GET.get("filter", "all")
+    if filter_value == "liked":
+        posts = Post.objects.filter(liked_by=request.user)
+    elif filter_value == "recent":
+        one_week_ago = now() - timedelta(days=7)
+        posts = Post.objects.filter(created_at=one_week_ago)
+    else:
+        posts = all_posts
+
     context = {
-        "posts": all_posts,
+        "posts": posts,
         "user": request.user,
+        "filter_val": filter_value,
     }
 
     if request.method == "POST":

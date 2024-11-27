@@ -124,26 +124,41 @@
   </section>
 
 
+
   <section class="wrapper-section">
-  <h2 class="text-2xl font-semibold mb-4 text-center">{{ user.first_name}}'s Generated Wrapped</h2>
-    <div class="flex justify-center space-x-4 flex-wrap">
-      <div class="wrap-grid">
-        {% for wrap in wraps %}
-        
-          <div class="wrap-card">
-            <!-- {{ wrap.overview.user }} -->
-            <h1 class="text-2xl font-bold">{{ wrap.overview.title }}</h1>
-            <h1 class="text-1xl font-bold">{{ wrap.overview.created_at }}</h1>
-            <h1 class="track_list">{{ wrap.top_tracks }}</h1>
-            {{ wrap.top_artists }}
-            {{ wrap.overview.top_genres }}
+    <h2 class="section-title">{{ user.first_name }}'s Generated Wrapped</h2>
+    <div class="wrap-grid">
+      {% for wrap in wraps %}
+        <div class="wrap-card">
+          <h1 class="wrap-title">{{ wrap.overview.title }}</h1>
+          <h2 class="wrap-date">{{ wrap.overview.created_at }}</h2>
+          <div class="wrap-content">
+            <h3 class="content-heading">Top Tracks:</h3>
+            <ul class="track-list">
+              {% for track in wrap.top_tracks %}
+                <li>{{ track.name }}, {{ track.artist }}</li>
+              {% endfor %}
+            </ul>
+            <h3 class="content-heading">Top Artists:</h3>
+            <ul class="artist-list">
+              {% for artist in wrap.top_artists %}
+                <li>{{ artist.name }}</li>
+              {% endfor %}
+            </ul>
+            <h3 class="content-heading">Top Genres:</h3>
+            <ul class="genre-list"></ul>
+            {% for genre in top_genres %}
+              {{ genre }}
+              {% endfor %}
+              </ul>
           </div>
-          {% empty %}
-          <p class="text-gray-500">No wraps available.</p>
-          {% endfor %}
-      </div>
+        </div>
+      {% empty %}
+      <p class="no-wraps-message">No wraps available.</p>
+      {% endfor %}
     </div>
   </section>
+  
 
   <section class="mt-10"></section>
     <h2 class="text-2xl font-semibold mb-4 text-center">User's Friends</h2>

@@ -326,7 +326,7 @@ def feedback_view(request):
             form.save()
             send_mail(
                 subject="Feedback Form Submission",
-                message="Feedback form sent! Thank you so much.",
+                message="Feedback form sent to your Spotify Email Address! Thank you so much.",
                 from_email="esther514514@gmail.com",
                 recipient_list=[request.user.email],
                 fail_silently=False,

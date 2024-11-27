@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import django_heroku
+import dj_database_url
+
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -28,7 +31,7 @@ SECRET_KEY = 'django-insecure-a(t0a70#g121rk*e2p2mv8-2#g$3z-i*vi!=tjz2%azbo^zic#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -124,6 +127,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR,  'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
+django_heroku.settings(locals())
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

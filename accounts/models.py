@@ -148,4 +148,4 @@ class Post(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="posts")
     created_at = models.DateTimeField(auto_now_add=True)
     wrap = models.OneToOneField(Wrap, on_delete=models.CASCADE, related_name="post_wrap")
-    liked_by = models.ManyToManyField(Account, related_name="liked_by", blank=True, null=True)
+    liked_by = models.ManyToManyField(Account, related_name="liked_by", blank=True)

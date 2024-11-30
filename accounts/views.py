@@ -416,3 +416,20 @@ def new_post(request):
         return redirect("/friends/")
 
     return render(request, 'new_post.html', context)
+
+@login_required
+def profile(request):
+    if request.method == "POST" and "delete_account" in request.POST:
+        user = request.user
+        user.delete()
+        return redirect("home")
+    
+    if request.method == "POST" and "logout" in request.POST:
+        logout(request)
+        request.session.flush()
+        return redirect("home")
+
+    context = {
+        "user": request.user,
+    }
+    return render(request, "profile.html", context)

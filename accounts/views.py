@@ -233,10 +233,14 @@ def followed_posts(request):
 
 @login_required
 def toggle_dark_mode(request):
+    print("Toggle Dark Mode view called!")  # Debug
     settings, created = UserSettings.objects.get_or_create(user=request.user)
     settings.toggle_dark_mode()
-    
+    print(f"Dark mode toggled: {settings.dark_mode}")  # Debug
     return JsonResponse({'dark_mode': settings.dark_mode})
+
+
+
 
 def get_top_artists(access_token, time_frame="medium_term"):
     headers = {

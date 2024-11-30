@@ -1,8 +1,12 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %} 
+{% load static %} 
 
-<div class="container">
-  <h1 class="text-6xl font-bold">About Us</h1>
-  <p class="text-lg mt-4 text-gray-200">
+{% block content %}
+<div class="container mx-auto px-4 py-8 text-white">
+
+  <!-- About Us Section -->
+  <h1 class="text-6xl font-bold text-center mb-6">About Us</h1>
+  <p class="text-lg mt-4 text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
     Welcome to your personalized Spotify Wrapped experience! Unlike the official Spotify
     Wrapped, which only comes around once a year, this project allows you to
     create your own Wrapped any time you want. Discover your top songs, artists,
@@ -11,18 +15,148 @@
     to you and share your unique profile whenever you like!
   </p>
 
+  <!-- Development Team Section -->
+  <section class="py-16">
+    <h2 class="text-3xl font-bold text-center
+    mb-8 text-white">Meet Our Team</h2>
+    <div
+      id="teamCarousel"
+      class="carousel slide relative mx-auto max-w-5xl shadow-lg rounded-lg overflow-hidden"
+      data-bs-ride="carousel"
+    >
+      <div class="carousel-inner">
+        <!-- Esther -->
+        <div class="carousel-item active">
+          <div class="flex flex-wrap items-center">
+            <!-- Picture -->
+            <div class="w-full md:w-1/2 text-center">
+              <img
+                src="{% static 'esther.png' %}"
+                alt="Esther"
+                class="object-cover w-full h-80 rounded-lg"
+              />
+            </div>
+            <!-- Description -->
+            <div class="w-full md:w-1/2 p-6">
+              <p class="italic text-lg text-gray-300">
+                "With a passion for innovation and a dedication to detail, I strive to turn challenges into opportunities, creating solutions that leave a lasting impact."
+              </p>
+              <p class="text-right font-semibold text-gray-200 mt-4">- Esther</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Karolina -->
+        <div class="carousel-item">
+          <div class="flex flex-wrap items-center">
+            <div class="w-full md:w-1/2 text-center">
+              <img
+                src="{% static 'karolina.png' %}"
+                alt="Karolina"
+                class="object-cover w-full h-80 rounded-lg"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-6">
+              <p class="italic text-lg text-gray-300">
+                "Always inspired to innovate and committed to delivering impactful solutions through collaboration and creativity."
+              </p>
+              <p class="text-right font-semibold text-gray-200 mt-4">- Karolina</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sabrina -->
+        <div class="carousel-item">
+          <div class="flex flex-wrap items-center">
+            <div class="w-full md:w-1/2 text-center">
+              <img
+                src="{% static 'sabrina.png' %}"
+                alt="Karolina"
+                class="object-cover w-full h-80 rounded-lg"
+              />
+            </div>
+            <div class="w-full md:w-1/2 p-6">
+              <p class="italic text-lg text-gray-300">
+                "Code is not just lines of logic; it's a canvas where creativity and innovation converge to solve real-world problems."
+              </p>
+              <p class="text-right font-semibold text-gray-200 mt-4">- Karolina</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shreyas -->
+      <div class="carousel-item">
+        <div class="flex flex-wrap items-center">
+          <div class="w-full md:w-1/2 text-center">
+            <img
+              src="{% static 'shreyas.png' %}"
+              alt="Karolina"
+              class="object-cover w-full h-80 rounded-lg"
+            />
+          </div>
+          <div class="w-full md:w-1/2 p-6">
+            <p class="italic text-lg text-gray-300">
+              "Every great CS project starts with a single line of code and a bold vision to change the world."
+            </p>
+            <p class="text-right font-semibold text-gray-200 mt-4">- Karolina</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aakrishtaa -->
+      <div class="carousel-item">
+        <div class="flex flex-wrap items-center">
+          <div class="w-full md:w-1/2 text-center">
+            <img
+              src="{% static 'aakrishtaa.png' %}"
+              alt="Karolina"
+              class="object-cover w-full h-80 rounded-lg"
+            />
+          </div>
+          <div class="w-full md:w-1/2 p-6">
+            <p class="italic text-lg text-gray-300">
+              "Building a CS project is like solving a puzzle—each piece of code brings the bigger picture to life."
+            </p>
+            <p class="text-right font-semibold text-gray-200 mt-4">- Karolina</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carousel Controls -->
+      <button
+        class="carousel-control-prev absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600"
+        type="button"
+        data-bs-target="#teamCarousel"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button
+        class="carousel-control-next absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600"
+        type="button"
+        data-bs-target="#teamCarousel"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+  </section>
+
   <!-- Feedback Section -->
-  <div class="feedback-section">
-    <h2>Have Feedback?</h2>
-    <form method="POST">
+  <div class="feedback-section mt-12 bg-gray-800 rounded-lg p-6">
+    <h2 class="text-2xl font-semibold text-center mb-4">Have Feedback?</h2>
+    <form method="POST" class="space-y-4">
       {% csrf_token %}
       <textarea
         name="text"
         placeholder="Send us suggestions here!"
-        style="color: black; background-color: white"
+        class="w-full bg-white text-gray-800 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+        rows="4"
       ></textarea>
 
-      <div class="stars" id="starRating">
+      <!-- Star Rating -->
+      <div class="flex justify-center space-x-2 text-yellow-400" id="starRating">
         <span class="star" data-value="1">&#9734;</span>
         <span class="star" data-value="2">&#9734;</span>
         <span class="star" data-value="3">&#9734;</span>
@@ -32,98 +166,45 @@
 
       <input type="hidden" name="rating" id="ratingInput" value="" />
 
-      <button type="submit">Submit</button>
+      <div class="flex justify-center">
+        <button
+          type="submit"
+          class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition"
+        >
+          Submit
+        </button>
+      </div>
     </form>
-  </div>
-
-  <!-- Development Team Section -->
-  <div class="team-members">
-    <div class="member">
-      <div
-        class="avatar"
-        style="background-image: url('{% static 'esther.png' %}')"
-      ></div>
-      <p>Esther</p>
-    </div>
-    <div class="member">
-      <div
-        class="avatar"
-        style="background-image: url('{% static 'karolina.png' %}')"
-      ></div>
-      <p>Karolina</p>
-    </div>
-    <div class="member">
-      <div
-        class="avatar"
-        style="background-image: url('{% static 'sabrina.png' %}')"
-      ></div>
-      <p>Sabrina</p>
-    </div>
-    <div class="member">
-      <div
-        class="avatar"
-        style="background-image: url('{% static 'shreyas.png' %}')"
-      ></div>
-      <p>Shreyas</p>
-    </div>
-    <div class="member">
-      <div
-        class="avatar"
-        style="background-image: url('{% static 'aakrishtaa.png' %}')"
-      ></div>
-      <p>Aakrishtaa</p>
-    </div>
   </div>
 </div>
 
-<style>
-    .star {
-        font-size: 24px;
-        color: gray;
-        cursor: pointer;
-    }
-    .star.filled {
-        color: gold;
-    }
-  </style>
-  
-  <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          const stars = document.querySelectorAll(".star");
-          const ratingInput = document.querySelector('input[name="rating"]');
-          let selectedRating = 0;
-  
-          function fillStars(rating) {
-              stars.forEach((star) => {
-                  star.classList.toggle("filled", star.getAttribute("data-value") <= rating);
-              });
-          }
-  
-          stars.forEach((star) => {
-              star.addEventListener("mouseenter", function () {
-                  const hoverRating = this.getAttribute("data-value");
-                  fillStars(hoverRating);
-              });
-  
-              star.addEventListener("mouseleave", function () {
-                  fillStars(selectedRating);
-              });
-  
-              // Click event to set the rating
-              star.addEventListener("click", function () {
-                  selectedRating = this.getAttribute("data-value");
-                  ratingInput.value = selectedRating;
-                //   console.log("Rating set to:", selectedRating);
-                  fillStars(selectedRating); 
-              });
-          });
-  
-          // Display an alert if feedback was successfully submitted
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get("submitted") === "true") {
-              alert("Feedback submitted!");
-          }
-      });
-  </script>
+<!-- Star Rating Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.querySelector("#ratingInput");
+    let selectedRating = 0;
 
+    function fillStars(rating) {
+      stars.forEach((star, index) => {
+        star.textContent = index < rating ? "★" : "☆";
+      });
+    }
+
+    stars.forEach((star, index) => {
+      star.addEventListener("click", () => {
+        selectedRating = index + 1;
+        ratingInput.value = selectedRating;
+        fillStars(selectedRating);
+      });
+
+      star.addEventListener("mouseover", () => fillStars(index + 1));
+      star.addEventListener("mouseleave", () => fillStars(selectedRating));
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("submitted") === "true") {
+        alert("Feedback submitted!");
+    }
+  });
+</script>
 {% endblock %}

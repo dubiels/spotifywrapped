@@ -117,11 +117,17 @@ class Song(models.Model):
     name = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, default="None", on_delete=models.SET_DEFAULT)
     album = models.CharField(max_length=200)
-    preview_url = models.CharField(max_length=400)
+    preview_url = models.URLField(null=True, blank=True)
     album_cover_url = models.CharField(max_length=400)
 
     def __str__(self):
         return f"NAME: {self.name} ARTIST: {self.artist.name} ALBUM: {self.album}"
+
+class Genre(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 class Wrap(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="wraps")
@@ -129,12 +135,11 @@ class Wrap(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     top_tracks = models.ManyToManyField(Song)
     top_artists = models.ManyToManyField(Artist)
-
-    # Comma separated values
-    top_genres = models.CharField(max_length=2000)
+    top_genres = models.ManyToManyField(Genre)
 
     def __str__(self):
         return f"{self.user.email}'s Wrap {self.title} created at: {self.created_at}"
+
 
 class Feedback(models.Model):
     text = models.TextField()

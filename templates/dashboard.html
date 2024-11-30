@@ -3,9 +3,33 @@
 {% block content %}
 <div class="container py-5" class="dark:bg-black dark:text-white" style="background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); color: white;">
   <!-- Header Section -->
-  <div class="text-center mb-5">
-    <h1 class="display-4 fw-bold">{{ user.first_name }}'s Wrapped</h1>
-    <p class="text-light">Discover your top songs, artists, and genres!</p>
+  <div class="text-center mb-8">
+    <h1 class="text-5xl font-bold">Your Wrapped</h1>
+    <div class="flex justify-center items-center mt-4 space-x-2">
+      <form id="wrap-form" method="POST" class="space-y-4">
+        {% csrf_token %}
+        <!-- Name Your Wrap -->
+        <div class="flex flex-col">
+          <label for="new_wrap_name" class="text-lg text-gray-300 mb-2">Name Your Wrap:</label>
+          <input class="text-black p-2 rounded" id="new_wrap_name" name="new_wrap_name" placeholder="Type here..." required />
+        </div>
+
+        <!-- Time Period Dropdown -->
+        <div class="flex flex-col">
+          <label for="timeframe_select" class="text-lg text-gray-300 mb-2">Time Period:</label>
+          <select id="timeframe_select" name="timeframe_select" class="bg-black text-gray-400 border border-gray-600 rounded p-2 focus:ring-2 focus:ring-green-500">
+            <option value="short_term">Last 4 Weeks</option>
+            <option value="medium_term" selected>Last 6 Months</option>
+            <option value="long_term">All Time</option>
+          </select>
+        </div>
+
+        <!-- Create Wrap Button -->
+        <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-full hover:bg-green-600 transition">
+          Create Wrap
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Top Songs and Artists Section -->
@@ -222,28 +246,355 @@
       </button>
     </div>
   </section>
+   
+  <section class="wrapper-section py-12 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <h3 class="section-title text-center text-2xl font-bold tracking-wide mb-10">
+      Your Generated Wrapped
+    </h3>
 
+    <!-- Loop through each wrap -->
+    <div class="wrap-grid flex flex-col gap-5">
+      {% for wrap in wraps %}
+        <div class="wrap-card mb-5 w-full bg-gray-900 text-white rounded-lg shadow-lg p-6">
+        <!-- Wrap title and creation date -->
+                <div class="wrap-info text-center mb-6">
+                  <h1 class="text-xl font-extrabold mb-2 tracking-tight">{{ wrap.overview.title }}</h1>
+                  <h2 class="text-md text-gray-400 italic">{{ wrap.overview.created_at|date:"F j, Y" }}</h2>
+                </div>
+
+                <div class="wrap-content flex justify-evenly items-center w-full">
+                  <!-- Carousel for Top Tracks -->
+                  <div class="carousel-container flex flex-col items-center">
+                    <h2 class="text-center mb-4">Top Songs</h2>
+                    <div
+                        id="topSongsCarousel{{ wrap.overview.id }}"
+                        class="carousel slide carousel-fade position-relative shadow"
+                        data-bs-ride="carousel"
+                        style="width: 250px; height: 250px; margin: 0 auto; border-radius: 10px; overflow: hidden;"
+                    >
+                        <div class="carousel-inner h-100 w-100">
+                            {% for track in wrap.top_tracks %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                                <img
+                                    src="{{ track.album_cover_url }}"
+                                    alt="{{ track.album }}"
+                                    class="d-block w-100 h-100"
+                                    style="object-fit: cover; filter: brightness(0.7);"
+                                />
+                                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center position-absolute" style="z-index: 10;">
+                                    <h5 class="text-white fw-bold">{{ track.name }}</h5>
+                                    <p class="text-light">{{ track.artist }}</p>
+                                    {% if track.preview_url %}
+                                    <button
+                                        onclick="playPreview(this, '{{ track.preview_url }}')"
+                                        class="btn btn-outline-light btn-sm"
+                                        style="backdrop-filter: blur(5px); position: relative; z-index: 20;"
+                                    >
+                                        ▶ Play Preview
+                                    </button>
+                                    {% else %}
+                                    <p class="text-muted mb-0">No preview available</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-center text-light">No top songs available.</p>
+                            {% endfor %}
+                        </div>
+                        <button
+                            class="carousel-control-prev btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                            type="button"
+                            data-bs-target="#topSongsCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="prev"
+                            style="
+                                z-index: 15;
+                                width: 50px;
+                                height: 50px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                            "
+                        >
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button
+                            class="carousel-control-next btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                            type="button"
+                            data-bs-target="#topSongsCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="next"
+                            style="
+                                z-index: 15;
+                                width: 50px;
+                                height: 50px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                            "
+                        >
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                  </div>           
+              
+                  <!-- Carousel for Top Artists -->
+                  <div class="carousel-container flex flex-col items-center">
+                    <h2 class="text-center mb-4">Top Artists</h2>
+                    <div
+                        id="topArtistsCarousel{{ wrap.overview.id }}"
+                        class="carousel slide carousel-fade position-relative shadow"
+                        data-bs-ride="carousel"
+                        style="width: 250px; height: 250px; margin: 0 auto; border-radius: 10px; overflow: hidden;"
+                    >
+                        <div class="carousel-inner h-100 w-100">
+                            {% for artist in wrap.top_artists %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                                <img
+                                    src="{{ artist.image_url }}"
+                                    alt="{{ artist.name }}"
+                                    class="d-block w-100 h-100"
+                                    style="object-fit: cover; filter: brightness(0.7);"
+                                />
+                                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                                    <h5 class="text-white fw-bold">{{ artist.name }}</h5>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-center text-light">No top artists available.</p>
+                            {% endfor %}
+                        </div>
+                        <button
+                            class="carousel-control-prev btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                            type="button"
+                            data-bs-target="#topArtistsCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="prev"
+                            style="
+                                z-index: 15;
+                                width: 50px;
+                                height: 50px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                            "
+                        >
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button
+                            class="carousel-control-next btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                            type="button"
+                            data-bs-target="#topArtistsCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="next"
+                            style="
+                                z-index: 15;
+                                width: 50px;
+                                height: 50px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                            "
+                        >
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                  </div>
+                
+              
+                  <div class="carousel-container flex flex-col items-center">
+                    <h2 class="text-center mb-4 fw-bold text-white">Top Genres</h2>
+                    <div
+                        id="topGenresCarousel{{ wrap.overview.id }}"
+                        class="carousel slide carousel-fade position-relative"
+                        data-bs-ride="carousel"
+                        style="width: 300px; height: 150px; margin: 0 auto; border-radius: 10px; overflow: hidden;"
+                    >
+                        <div class="carousel-inner h-100 w-100">
+                            {% for genre in wrap.top_genres %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
+                                <div
+                                    class="position-relative h-100 w-100"
+                                    style="
+                                        border-radius: 10px;
+                                        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+                                    "
+                                >
+                                    <!-- Background with Brightness -->
+                                    <div
+                                        class="h-100 w-100 position-absolute"
+                                        style="
+                                            background: linear-gradient(135deg, #b4eefd, #d8b5ff);
+                                            filter: brightness(0.7);
+                                            z-index: 1;
+                                        "
+                                    ></div>
+                                    <!-- Genre Caption -->
+                                    <div
+                                        class="d-flex flex-column justify-content-center align-items-center h-100 w-100 position-relative"
+                                        style="z-index: 2; text-align: center;"
+                                    >
+                                        <h5
+                                            class="text-white fw-bold mb-0"
+                                            style="font-size: 1.5rem;"
+                                        >
+                                            {{ genre }}
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-center text-muted">No top genres available.</p>
+                            {% endfor %}
+                        </div>
+                        <button
+                            class="carousel-control-prev btn btn-dark rounded-circle p-2"
+                            type="button"
+                            data-bs-target="#topGenresCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="prev"
+                            style="z-index: 15; width: 30px; height: 30px; top: 50%; transform: translateY(-50%);"
+                        >
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button
+                            class="carousel-control-next btn btn-dark rounded-circle p-2"
+                            type="button"
+                            data-bs-target="#topGenresCarousel{{ wrap.overview.id }}"
+                            data-bs-slide="next"
+                            style="z-index: 15; width: 30px; height: 30px; top: 50%; transform: translateY(-50%);"
+                        >
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                  </div>
+                              
+
+                </div>
+                
+                <div class="text-right mb-6">
+                  <form method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="wrap_id" value="{{ wrap.overview.id }}">
+                      <button 
+                          type="submit" 
+                          name="delete_wrap" 
+                          class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-red-600 transition shadow-md"
+                      >
+                          Delete
+                      </button>
+                  </form>
+                </div>
+            </div>  <!-- End of wrap card -->
+        {% empty %}
+            <p class="no-wraps-message">No wraps available.</p>
+        {% endfor %}
+    </div>  <!-- End of wrap-grid -->
+  </section>
+
+
+
+  <section class="mt-10"></section>
+    <h2 class="text-2xl font-semibold mb-4 text-center">Your Friends</h2>
+    <form method="POST" action="#">
+      {% csrf_token %}
+      <input class="text-black" id="friend_name" name="friend_name" autocomplete="off">
+      </input>
+      <button type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">
+        Add Friend +
+      </button>
+    </form>
+    <div class="flex justify-center space-x-4 flex-wrap"></div>
+      {% for friend in friends %}
+      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
+        {{ friend }}
+      </div>
+      {% empty %}
+      <p class="text-gray-500">You have no friends</p>
+      {% endfor %}
+
+      {% if invalid_username %}
+      You provided an invalid username
+      {% else %}
+
+      {% endif %}
+    </div>
+  </section>
 </div>
 
 <script>
+  document.getElementById('timeframe_select').addEventListener('change', function() {
+      const timeFrame = this.value;
+      fetch(`/fetch_top_tracks/?time_frame=${timeFrame}`)
+          .then(response => response.json())
+          .then(data => {
+              const topTracksList = document.getElementById('top-tracks-list');
+              topTracksList.innerHTML = ''; // Clear existing tracks
+              if (data.top_tracks && data.top_tracks.length > 0) {
+                  data.top_tracks.forEach(track => {
+                      const listItem = document.createElement('li');
+                      listItem.className = 'flex items-center justify-between py-4 border-b border-gray-700';
+                      listItem.innerHTML = `
+                          <div class="flex items-center space-x-4">
+                              ${track.album_cover_url 
+                                  ? `<img src="${track.album_cover_url}" alt="${track.album}" class="w-12 h-12 rounded object-cover">`
+                                  : `<div class="w-12 h-12 rounded bg-gray-700 flex items-center justify-center text-white">
+                                      ${track.name.charAt(0).toUpperCase()}
+                                     </div>`
+                              }
+                              <div>
+                                  <div class="text-lg font-semibold">${track.name}</div>
+                                  <div class="text-gray-400">${track.artist}</div>
+                              </div>
+                          </div>
+                          <div class="flex items-center">
+                              <div class="text-gray-400 text-sm mr-4">${track.album}</div>
+                              ${track.preview_url 
+                                  ? `<button onclick="playPreview('${track.preview_url}')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
+                                      ▷
+                                     </button>`
+                                  : `<span class="text-gray-500">No preview available</span>`
+                              }
+                          </div>
+                      `;
+                      topTracksList.appendChild(listItem);
+                  });
+              } else {
+                  topTracksList.innerHTML = '<li class="text-gray-500">No top tracks available.</li>';
+              }
+          })
+          .catch(error => console.error('Error fetching top tracks:', error));
+  });
+  
+  
   let audio = null;
   let currentlyPlayingButton = null;
 
   function playPreview(button, previewUrl) {
-    if (audio && audio.src === previewUrl) {
-      audio.paused ? audio.play() : audio.pause();
-      button.innerText = audio.paused ? "▶" : "❚❚";
-    } else {
-      if (audio) audio.pause();
-      audio = new Audio(previewUrl);
-      audio.play();
-      button.innerText = "❚❚";
-      currentlyPlayingButton = button;
-      audio.onended = () => {
-        button.innerText = "▶";
-        currentlyPlayingButton = null;
-      };
-    }
+      // Check if the audio is already playing and if it's the same URL
+      if (audio && audio.src === previewUrl) {
+          if (audio.paused) {
+              audio.play();
+              button.innerText = "❚❚"; // Change to pause icon
+          } else {
+              audio.pause();
+              button.innerText = "▶"; // Change back to play icon
+          }
+      } else {
+          // Pause any existing audio and reset the button
+          if (audio) {
+              audio.pause();
+              if (currentlyPlayingButton) {
+                  currentlyPlayingButton.innerText = "▶"; // Reset previous buttons to play icon
+              }
+          }
+          
+          // Set the new audio and play it
+          audio = new Audio(previewUrl);
+          audio.play();
+          
+          // Update the button icons
+          button.innerText = "❚❚"; // Change to pause icon
+          currentlyPlayingButton = button;
+
+          // Reset icon when audio ends
+          audio.onended = () => {
+              button.innerText = "▶";
+              currentlyPlayingButton = null;
+          };
+      }
   }
+
 </script>
 {% endblock %}

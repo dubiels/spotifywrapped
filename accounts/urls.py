@@ -20,4 +20,5 @@ urlpatterns = [
     path('about/', views.feedback_view, name='about'),
     path('friends/', views.friends, name="friends"),
     path('new_post/', views.new_post, name="new_post"),
+    path('profile/', views.profile, name="profile"),
 ]

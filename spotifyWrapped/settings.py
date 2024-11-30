@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-import django_heroku
-import dj_database_url
+# import django_heroku
+# import dj_database_url
 
 import os
 from dotenv import load_dotenv

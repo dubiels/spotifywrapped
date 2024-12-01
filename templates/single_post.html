@@ -210,26 +210,44 @@
 
     </div>
     
-    <div class="text-right mb-6">
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="wrap_id" value="{{ wrap.id }}">
-            <button 
-                type="submit" 
-                name="delete_wrap" 
-                class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-red-600 transition shadow-md"
-            >
-                Delete
-            </button>
-        </form>
-        <div>
-            Share
-            {% post_to_twitter "Check out my new wrap" object_or_url "Twitter" %}
-            {% copy_to_clipboard object_or_url "Copy" %}
-            {% post_to_linkedin object_or_url "Share on LinkedIn" %}
-            {% send_email "New Wrap" "Check out my new wrap" object_or_url "Share via email" %}
+    <div class="flex flex-col space-y-6 mt-6">
+        <!-- Row Container for Delete Button and Share Section -->
+        <div class="flex justify-between items-center w-full bg-gray-800 text-white rounded-lg p-4 shadow-md">
+            <!-- Share Section -->
+            <div class="flex items-center space-x-4">
+                <!-- Twitter Share -->
+                <div class="flex items-center space-x-2">
+                    {% post_to_twitter "Check out my new wrap" object_or_url "Twitter" %}
+                </div>
+                <!-- Copy Link -->
+                <div class="flex items-center space-x-2">
+                    {% copy_to_clipboard object_or_url "Copy Link" %}
+                </div>
+                <!-- LinkedIn Share -->
+                <div class="flex items-center space-x-2">
+                    {% post_to_linkedin object_or_url "LinkedIn" %}
+                </div>
+                <!-- Email Share -->
+                <div class="flex items-center space-x-2">
+                    {% send_email "New Wrap" "Check out my new wrap" object_or_url "Email" %}
+                </div>
+            </div>
+
+            <!-- Delete Button -->
+            <form method="POST" class="inline-block">
+                {% csrf_token %}
+                <input type="hidden" name="wrap_id" value="{{ wrap.id }}">
+                <button 
+                    type="submit" 
+                    name="delete_wrap" 
+                    class="bg-red-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-600 transition-shadow shadow-lg"
+                >
+                    Delete Wrap
+                </button>
+            </form>
         </div>
     </div>
+        
 </div>  <!-- End of wrap card -->
 
 {% add_copy_script %}

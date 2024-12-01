@@ -12,7 +12,7 @@
                 <button 
                     id="create-button" 
                     type="submit" 
-                    class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-lg"
+                    class="bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold py-2 px-6 rounded-full hover:from-green-500 hover:to-green-700 transition shadow-lg"
                 >
                     Create Post
                 </button>
@@ -23,7 +23,7 @@
         <div>
             <form method="GET" id="filterForm" class="flex items-center space-x-4">
                 {% csrf_token %}
-                <label for="filter" class="text-white font-semibold">Filter Posts:</label>
+                <label for="filter" class="text-gray-200 font-semibold">Filter Posts:</label>
                 <select 
                     id="filter" 
                     name="filter" 
@@ -40,20 +40,13 @@
     </div>
 
     <!-- Posts List -->
-    <div id="post-container" class="flex flex-col items-stretch min-h-[400px]">
+    <div id="post-container" class="flex flex-col items-stretch min-h-[400px] space-y-6">
         {% for post in posts %}
-        <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 mb-4">
-            <form method="POST">
-                {% csrf_token %}
-                <button class="bg-green-500" type="submit" name="experience">
-                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
-                    View
-                </button>
-            </form>
-            <!-- Post Info -->
-            <div class="flex justify-between items-center">
+        <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 space-y-4">
+            <!-- Post Header -->
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4">
                 <div>
-                    <p class="font-bold">{{ post.user }}</p>
+                    <p class="font-bold text-lg">{{ post.user }}</p>
                     <p class="text-sm text-gray-400">{{ post.created_at }}</p>
                 </div>
                 <div class="bg-gray-900 text-white px-3 py-1 rounded-lg text-sm">
@@ -61,34 +54,35 @@
                 </div>
             </div>
 
-            <!-- Likes -->
-            <div>
-                <div class="flex flex-wrap gap-2">
-                    <p class="text-gray-400">Liked by:</p>
-                    {% for user in post.liked_by.all %}
-                    <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ user.first_name }}</span>
-                    {% endfor %}
-                </div>
+            <!-- Post Body -->
+            <div class="text-gray-300">
+                <p>{{ post.content }}</p>
             </div>
 
-            <!-- Like Button -->
-            <form method="POST" action="#" class="flex items-center space-x-3">
-                {% csrf_token %}
-                <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button 
-                    type="submit" 
-                    id="heartButton" 
-                    name="favorite" 
-                    class="flex items-center px-4 py-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition"
-                >
-                    {% if user in post.liked_by.all %}
-                    <i class="fa-solid fa-heart"></i>
-                    {% else %}
-                    <i class="fa-regular fa-heart"></i>
-                    {% endif %}
-                </button>
-            </form>
-            
+            <!-- Likes and View Button Section -->
+            <div class="flex justify-between items-center">
+                <!-- Liked By -->
+                <div class="flex flex-wrap gap-2 items-center">
+                    <p class="text-gray-400">Liked by:</p>
+                    {% for user in post.liked_by.all %}
+                    <span class="bg-gray-700 px-3 py-1 rounded-full text-sm">{{ user.first_name }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- View Button -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                    <button 
+                        class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-lg" 
+                        type="submit" 
+                        name="experience"
+                    >
+                        View
+                    </button>
+                </form>
+            </div>
+
         </div>
         {% empty %}
         <!-- Message for No Posts -->
@@ -98,7 +92,5 @@
         {% endfor %}
     </div>
 </div>
-
-
 
 {% endblock %}

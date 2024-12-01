@@ -218,6 +218,9 @@ def create_wrap(access_token, time_frame, user, title="My Wrap"):
     top_genres = get_top_genres(access_token, time_frame=time_frame)
     top_tracks = get_user_top_tracks(access_token, time_range=time_frame)
 
+    if not top_artists or not top_genres or not top_tracks:
+        raise ValueError("You don't have enough data to create a wrap.")
+    
     # Create the wrap instance
     tempWrap = Wrap(user=user, title=title)
     tempWrap.save()

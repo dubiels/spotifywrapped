@@ -514,8 +514,6 @@
     </div>  <!-- End of wrap-grid -->
   </section>
 
-
-
   <div class="mt-8">
     <h2 class="text-2xl font-semibold text-gray-100 mb-6 text-center">Your Friends</h2>
   
@@ -579,10 +577,6 @@
     </div>        
     
   </div>
-  
-  
-    
-    
       
 </div>
 
@@ -670,19 +664,27 @@
   }
 
   function validateForm() {
-    // Get the value of the time frame dropdown
     const timeFrame = document.getElementById('timeframe_select').value;
-    
+
     // Check if the time frame is not selected
     if (!timeFrame) {
-        // Show an alert if no time frame is selected
         alert("Please select a time period before creating the wrap.");
         return false;  // Prevent the form from being submitted
     }
 
-    // Allow the form to be submitted if a time frame is selected
+    // Additional check for empty tracks, artists, or genres
+    const topTracks = document.querySelectorAll("#topSongsCarousel .carousel-item");
+    const topArtists = document.querySelectorAll("#topArtistsCarousel .carousel-item");
+    const topGenres = document.querySelectorAll("#topGenresCarousel .carousel-item");
+
+    if (topTracks.length === 0 || topArtists.length === 0 || topGenres.length === 0) {
+        alert("You don't have enough data to create a wrap. Please ensure you have data for top songs, artists, and genres.");
+        return false;  // Prevent the form from being submitted
+    }
+
+    // Allow the form to be submitted if everything is okay
     return true;
-  }
+}
 
 </script>
 {% endblock %}

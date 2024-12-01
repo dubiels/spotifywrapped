@@ -394,6 +394,10 @@ def friends(request):
     elif filter_value == "recent":
         one_week_ago = now() - timedelta(days=7)
         posts = Post.objects.filter(created_at__lt=one_week_ago)
+    elif filter_value == "follow":
+        posts = Post.objects.none()
+        for i in friends:
+            posts = posts | Post.objects.filter(user=i)
     else:
         posts = all_posts
 

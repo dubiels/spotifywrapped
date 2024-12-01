@@ -5,33 +5,45 @@
   <!-- Header Section -->
   <div class="text-center mb-8">
     <h1 class="text-5xl font-bold">Your Wrapped</h1>
-    <div class="flex justify-center items-center mt-4 space-x-2">
-      <form id="wrap-form" method="POST" class="space-y-4">
-        {% csrf_token %}
-        <!-- Name Your Wrap -->
-        <div class="flex flex-col">
-          <label for="new_wrap_name" class="text-lg text-gray-300 mb-2">Name Your Wrap:</label>
-          <input class="text-black p-2 rounded" id="new_wrap_name" name="new_wrap_name" placeholder="Type here..." required />
-        </div>
+    <p class="text-gray-400 italic mt-2">Create a new wrap by entering a name and selecting a time period.</p>
 
-        <!-- Time Period Dropdown -->
-        <div class="flex flex-col">
-          <label for="timeframe_select" class="text-lg text-gray-300 mb-2">Time Period:</label>
-          <select id="timeframe_select" name="timeframe_select" class="bg-black text-gray-400 border border-gray-600 rounded p-2 focus:ring-2 focus:ring-green-500">
-            <option value="short_term">Last 4 Weeks</option>
-            <option value="medium_term" selected>Last 6 Months</option>
-            <option value="long_term">All Time</option>
-          </select>
-        </div>
-
-        <!-- Create Wrap Button -->
-        <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-full hover:bg-green-600 transition">
-          Create Wrap
-        </button>
-      </form>
-    </div>
+    <form id="wrap-form" method="POST" class="flex justify-center items-center mt-6 space-x-4" onsubmit="return validateForm()">
+      {% csrf_token %}
+      <!-- Name Your Wrap -->
+      <input
+        class="text-black p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        id="new_wrap_name"
+        name="new_wrap_name"
+        placeholder="Name your wrap:"
+        required
+        style="height: 48px; width: 200px;"
+      />
+  
+      <!-- Time Period Dropdown -->
+      <select
+        id="timeframe_select"
+        name="timeframe_select"
+        class="bg-black text-gray-400 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+        style="height: 48px; width: 200px; padding-left: 12px; padding-right: 12px;"
+      >
+        <option value="" disabled selected>Select time period</option>
+        <option value="short_term">Last 4 Weeks</option>
+        <option value="medium_term">Last 6 Months</option>
+        <option value="long_term">All Time</option>
+      </select>
+    
+      <!-- Create Wrap Button -->
+      <button
+        id="create-button"
+        type="submit"
+        class="bg-green-600 text-white font-semibold px-6 rounded-lg hover:bg-green-600 transition"
+        style="height: 48px;"
+      >
+        Create Wrap
+      </button>
+    </form>
   </div>
-
+  
   <!-- Top Songs and Artists Section -->
   <div class="row mb-5">
     <!-- Top Songs -->
@@ -45,31 +57,35 @@
       >
         <div class="carousel-inner h-100 w-100">
           {% for track in top_tracks %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
-            <div class="position-relative h-100 w-100">
-              <img
-                src="{{ track.album_cover_url }}"
-                alt="{{ track.album }}"
-                class="d-block w-100 h-100"
-                style="object-fit: cover; filter: brightness(0.7);"
-              />
-              <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                <h5 class="text-white fw-bold">{{ track.name }}</h5>
-                <p class="text-light">{{ track.artist }}</p>
-                {% if track.preview_url %}
-                <button
-                  onclick="playPreview(this, '{{ track.preview_url }}')"
-                  class="btn btn-outline-light btn-sm"
-                  style="backdrop-filter: blur(5px);"
-                >
-                  ▶ Play Preview
-                </button>
-                {% else %}
-                <p class="text-muted mb-0">No preview available</p>
-                {% endif %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+              <div class="position-absolute top-0 left-0 p-3 text-white text-3xl font-bold z-[10]">
+                  #{{ forloop.counter }}
               </div>
-            </div>
+              <div class="position-relative h-100 w-100">
+                  <img
+                      src="{{ track.album_cover_url }}"
+                      alt="{{ track.album }}"
+                      class="d-block w-100 h-100"
+                      style="object-fit: cover; filter: brightness(0.7);"
+                  />
+                  <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                      <h5 class="text-white fw-bold">{{ track.name }}</h5>
+                      <p class="text-light">{{ track.artist }}</p>
+                      {% if track.preview_url %}
+                      <button
+                          onclick="playPreview(this, '{{ track.preview_url }}')"
+                          class="btn btn-outline-light btn-sm"
+                          style="backdrop-filter: blur(5px);"
+                      >
+                          ▶ Play Preview
+                      </button>
+                      {% else %}
+                      <p class="text-muted mb-0">No preview available</p>
+                      {% endif %}
+                  </div>
+              </div>
           </div>
+        
           {% empty %}
           <p class="text-center text-light">No top songs available.</p>
           {% endfor %}
@@ -118,7 +134,10 @@
       >
         <div class="carousel-inner h-100 w-100">
           {% for artist in top_artists %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
+          <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+            <div class="position-absolute top-0 left-0 p-3 text-white text-3xl font-bold z-[10]">
+                #{{ forloop.counter }}
+            </div>
             <div class="position-relative h-100 w-100">
               {% if artist.image_url %}
               <img
@@ -191,7 +210,10 @@
     >
       <div class="carousel-inner h-100 w-100">
         {% for genre in top_genres %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
+        <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+          <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+              #{{ forloop.counter }}
+          </div>
           <div
             class="position-relative h-100 w-100"
             style="
@@ -275,6 +297,9 @@
                         <div class="carousel-inner h-100 w-100">
                             {% for track in wrap.top_tracks %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                              <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                                  #{{ forloop.counter }}
+                              </div>
                                 <img
                                     src="{{ track.album_cover_url }}"
                                     alt="{{ track.album }}"
@@ -346,6 +371,9 @@
                         <div class="carousel-inner h-100 w-100">
                             {% for artist in wrap.top_artists %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                              <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                                  #{{ forloop.counter }}
+                              </div>
                                 <img
                                     src="{{ artist.image_url }}"
                                     alt="{{ artist.name }}"
@@ -404,7 +432,10 @@
                     >
                         <div class="carousel-inner h-100 w-100">
                             {% for genre in wrap.top_genres %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
+                            <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                              <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                                  #{{ forloop.counter }}
+                              </div>
                                 <div
                                     class="position-relative h-100 w-100"
                                     style="
@@ -485,32 +516,74 @@
 
 
 
-  <section class="mt-10"></section>
-    <h2 class="text-2xl font-semibold mb-4 text-center">Your Friends</h2>
-    <form method="POST" action="#">
+  <div class="mt-8">
+    <h2 class="text-2xl font-semibold text-gray-100 mb-6 text-center">Your Friends</h2>
+  
+    <!-- Add Friend Section -->
+    <form method="POST" action="#" class="flex justify-center items-center space-x-4 mb-6">
       {% csrf_token %}
-      <input class="text-black" id="friend_name" name="friend_name" autocomplete="off">
-      </input>
-      <button type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">
-        Add Friend +
+      <div class="flex items-center space-x-2">
+        <input
+          class="text-gray-800 p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          placeholder="Enter Spotify ID"
+          id="friend_name"
+          name="friend_name"
+          autocomplete="off"
+          style="width: 250px; height: 44px;"
+        />
+      </div>
+      <button
+        type="submit"
+        class="bg-green-600 text-white font-semibold px-6 rounded-lg hover:bg-green-600 transition"
+        style="height: 44px;"
+      >
+        Add
       </button>
     </form>
-    <div class="flex justify-center space-x-4 flex-wrap"></div>
+  
+    <!-- Friends List -->
+    <div class="flex flex-wrap justify-center items-center gap-4">
       {% for friend in friends %}
-      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
-        {{ friend }}
+      <div class="flex items-center bg-gray-800 text-white rounded-lg px-4 py-2 shadow-lg space-x-4 relative group">
+        <span class="flex-grow">
+          <span class="font-semibold text-lg">{{ friend.first_name }}</span>
+          <span 
+            class="text-sm text-gray-400 cursor-pointer truncate relative"
+            style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;"
+          >
+            (ID: {{ friend.username|truncatechars:15 }})
+            <div 
+              class="absolute left-1/2 transform -translate-x-1/2 -translate-y-12 bg-black text-white text-sm rounded-lg px-4 py-2 shadow-lg hidden group-hover:flex"
+              style="z-index: 50; white-space: nowrap; padding: 8px 12px; border: 1px solid #333; background-color: #222;"
+            >
+              Spotify ID: {{ friend.username }}
+            </div>
+          </span>
+        </span>
+        <!-- Delete Button -->
+        <form method="POST" action="#">
+          {% csrf_token %}
+          <input type="hidden" name="delete_friend_id" value="{{ friend.id }}">
+          <button
+            type="submit"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-4 rounded-lg transition"
+            style="height: 44px;"
+          >
+            Delete
+          </button>
+        </form>
       </div>
       {% empty %}
-      <p class="text-gray-500">You have no friends</p>
+      <p class="text-gray-500 text-center w-full">You have no friends yet.</p>
       {% endfor %}
-
-      {% if invalid_username %}
-      You provided an invalid username
-      {% else %}
-
-      {% endif %}
-    </div>
-  </section>
+    </div>        
+    
+  </div>
+  
+  
+    
+    
+      
 </div>
 
 <script>
@@ -594,6 +667,21 @@
               currentlyPlayingButton = null;
           };
       }
+  }
+
+  function validateForm() {
+    // Get the value of the time frame dropdown
+    const timeFrame = document.getElementById('timeframe_select').value;
+    
+    // Check if the time frame is not selected
+    if (!timeFrame) {
+        // Show an alert if no time frame is selected
+        alert("Please select a time period before creating the wrap.");
+        return false;  // Prevent the form from being submitted
+    }
+
+    // Allow the form to be submitted if a time frame is selected
+    return true;
   }
 
 </script>

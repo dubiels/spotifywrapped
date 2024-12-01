@@ -31,7 +31,7 @@
     <!-- Navbar -->
     <header class="w-full flex justify-between items-center py-6 px-4">
       <div class="flex items-center">
-         <a href="{% url 'dashboard' %}">
+         <a href="{% url 'home' %}">
            <h1 class="text-2xl font-bold">Wrapify</h1>
          </a>
       </div>
@@ -39,7 +39,7 @@
       <div class="flex items-center space-x-6">
         <a href="{% url 'about' %}" class="text-lg">About</a>
         <a href="{% url 'login' %}" class="text-lg">Dashboard</a>
-        <a href="{% url 'friends' %}" class="text-lg">Friends</a>
+        <a href="{% url 'friends' %}" class="text-lg">Wrap Posts</a>
         <a href="{% url 'profile' %}" class="text-lg">
             <i class="fas fa-user"></i>
         </a>
@@ -60,7 +60,7 @@
         Made by Esther Park, Karolina Dubiel, Sabrina Zhu, Shreyas Basavatia and
         Aakrishtaa Kumar
       </p>
-      <a href="#" class="underline">Contact Us</a>
+      <a href="{% url 'about' %}#feedback-section" class="underline">Contact Us</a>
     </footer>
 
     <!-- Page Transition Script -->

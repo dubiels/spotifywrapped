@@ -21,7 +21,7 @@
     <main class="flex-grow flex flex-col items-center justify-center text-center">
         <h1 class="text-7xl font-extrabold mb-4 drop-shadow-lg">Wrapify</h1>
         <p class="text-xl mb-8">A social app based on Spotify Wrapped.</p>
-        <a href="{% url 'login' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg inline-flex items-center hover:bg-green-600">
+        <a href="{% url 'login' %}?show_dialog=true"  class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg inline-flex items-center hover:bg-green-600">
             <img src='../static/spotify-logo.png' class="h-6 w-6 mr-2">
             Log in with Spotify
         </a>

@@ -60,28 +60,62 @@
             </div>
 
             <!-- Likes and View Button Section -->
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center p-4 bg-gray-800 rounded-lg">
                 <!-- Liked By -->
-                <div class="flex flex-wrap gap-2 items-center">
+                <div class="flex items-center gap-2">
                     <p class="text-gray-400">Liked by:</p>
-                    {% for user in post.liked_by.all %}
-                    <span class="bg-gray-700 px-3 py-1 rounded-full text-sm">{{ user.first_name }}</span>
-                    {% endfor %}
+                    {% if post.liked_by.all %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for user in post.liked_by.all %}
+                        <span class="bg-gray-700 px-3 py-1 rounded-full text-sm text-white hover:bg-gray-600 transition shadow">
+                            {{ user.first_name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="text-gray-500 text-sm italic">No one yet</span>
+                    {% endif %}
                 </div>
 
-                <!-- View Button -->
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
-                    <button 
-                        class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-lg" 
-                        type="submit" 
-                        name="experience"
-                    >
-                        View
-                    </button>
-                </form>
+                <!-- Buttons Section -->
+                <div class="flex items-center space-x-4">
+                    <!-- Like Button -->
+                    <form method="POST" action="#" class="flex items-center">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button 
+                            type="submit" 
+                            id="heartButton" 
+                            name="favorite" 
+                            class="flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full hover:from-red-600 hover:to-pink-600 transition shadow-md"
+                        >
+                            {% if user in post.liked_by.all %}
+                            <i class="fa-solid fa-heart mr-2"></i>
+                            Liked
+                            {% else %}
+                            <i class="fa-regular fa-heart mr-2"></i>
+                            Like
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    <!-- View Button -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                        <button 
+                            class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-md" 
+                            type="submit" 
+                            name="experience"
+                        >
+                            View
+                        </button>
+                    </form>
+                </div>
             </div>
+
+            
+            
 
         </div>
         {% empty %}

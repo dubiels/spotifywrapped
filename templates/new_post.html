@@ -1,16 +1,40 @@
-<div class="text-black"></div>
-    <h2>New Post</h2>
-    <form method="POST">
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="bg-white shadow-lg rounded-xl p-12 w-full max-w-3xl mx-auto mt-12">
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">New Post</h2>
+  <form method="POST" class="space-y-8">
       {% csrf_token %}
-
-      <select id="wrap_name" name="wrap_name">
-        {% for wrap in wraps %}
-        <option value="{{ wrap.title }}">{{wrap.title}}</option>
-        {% endfor %}
-      </select>
-
+      
+      <!-- Dropdown for Wrap Name -->
+      <div>
+          <label for="wrap_name" class="block text-lg font-medium text-gray-700 mb-2">Select Wrap</label>
+          <select 
+              id="wrap_name" 
+              name="wrap_name" 
+              class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black text-lg"
+          >
+              {% for wrap in wraps %}
+              <option value="{{ wrap.title }}" {% if wrap.title == request.POST.wrap_name %}selected{% endif %}>
+                  {{ wrap.title }}
+              </option>
+              {% endfor %}
+          </select>
+      </div>
+      
+      <!-- Hidden Input for Rating -->
       <input type="hidden" name="rating" id="ratingInput" value="" />
 
-      <button type="submit">Submit</button>
-    </form>
-  </div>
+      <!-- Submit Button -->
+      <div class="flex justify-center">
+          <button 
+              type="submit" 
+              class="bg-blue-500 text-white text-lg font-medium py-3 px-6 rounded-lg shadow-md hover:bg-blue-600 transition"
+          >
+              Submit
+          </button>
+      </div>
+  </form>
+</div>
+
+{% endblock %}

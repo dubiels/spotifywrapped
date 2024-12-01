@@ -33,6 +33,7 @@
                     <option value="all" {% if filter_val == "all" %}selected{% endif %}>All</option>
                     <option value="liked" {% if filter_val == "liked" %}selected{% endif %}>Liked by You</option>
                     <option value="recent" {% if filter_val == "recent" %}selected{% endif %}>Recently Created</option>
+                    <option value="follow" {% if filter_val == "follow" %}selected{% endif %}>Followed Users</option>
                 </select>
             </form>
         </div>
@@ -42,6 +43,13 @@
     <div id="post-container" class="flex flex-col items-stretch min-h-[400px]">
         {% for post in posts %}
         <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 mb-4">
+            <form method="POST">
+                {% csrf_token %}
+                <button class="bg-green-500" type="submit" name="experience">
+                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                    View
+                </button>
+            </form>
             <!-- Post Info -->
             <div class="flex justify-between items-center">
                 <div>
@@ -55,10 +63,10 @@
 
             <!-- Likes -->
             <div>
-                <p class="text-gray-400">Liked by:</p>
                 <div class="flex flex-wrap gap-2">
+                    <p class="text-gray-400">Liked by:</p>
                     {% for user in post.liked_by.all %}
-                    <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ user.id }}</span>
+                    <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ user.first_name }}</span>
                     {% endfor %}
                 </div>
             </div>
@@ -79,8 +87,8 @@
                     <i class="fa-regular fa-heart"></i>
                     {% endif %}
                 </button>
-                <p class="text-gray-300">Number of likes: {{ post.liked_by.all|length }}</p>
             </form>
+            
         </div>
         {% empty %}
         <!-- Message for No Posts -->
@@ -90,5 +98,7 @@
         {% endfor %}
     </div>
 </div>
+
+
 
 {% endblock %}

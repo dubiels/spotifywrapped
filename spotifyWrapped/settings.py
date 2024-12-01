@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import django_heroku
-import dj_database_url
+# import dj_database_url
 
 import os
 from dotenv import load_dotenv
@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'accounts.apps.AccountsConfig'
+    'accounts.apps.AccountsConfig',
+    'django_social_share'
 ]
 
 MIDDLEWARE = [

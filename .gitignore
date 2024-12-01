@@ -1,0 +1,10 @@
+accounts/pycache/
+accounts/migrations/
+accounts/.DSStore
+spotifyWrapped/_pycache/
+.DS_Store
+.env
+.venv
+*.venv
+./venv
+db.sqlite3

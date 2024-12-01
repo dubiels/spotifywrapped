@@ -21,4 +21,5 @@ urlpatterns = [
     path('friends/', views.friends, name="friends"),
     path('new_post/', views.new_post, name="new_post"),
     path('profile/', views.profile, name="profile"),
+    path('single_post/<int:id>/', views.single_post, name='single_post')
 ]

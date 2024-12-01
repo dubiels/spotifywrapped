@@ -14,8 +14,10 @@ from django.conf import settings
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from .forms import FeedbackForm
-from datetime import timedelta
-from django.utils.timezone import now
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     if request.user.is_authenticated:
@@ -322,7 +324,14 @@ def feedback_view(request):
         form = FeedbackForm(request.POST)
         if form.is_valid():
             form.save()
-            # print("Form is valid and feedback saved") 
+            send_mail(
+                subject="Feedback Form Submission",
+                message="Feedback form sent to your Spotify Email Address! Thank you so much.",
+                from_email="esther514514@gmail.com",
+                recipient_list=[request.user.email],
+                fail_silently=False,
+            )
+            print(f"Email sent to {request.user.email}")
             return HttpResponseRedirect('/about/?submitted=true')
         else:
             print("Form is invalid:", form.errors)
@@ -412,3 +421,20 @@ def new_post(request):
         return redirect("/friends/")
 
     return render(request, 'new_post.html', context)
+
+@login_required
+def profile(request):
+    if request.method == "POST" and "delete_account" in request.POST:
+        user = request.user
+        user.delete()
+        return redirect("home")
+    
+    if request.method == "POST" and "logout" in request.POST:
+        logout(request)
+        request.session.flush()
+        return redirect("home")
+
+    context = {
+        "user": request.user,
+    }
+    return render(request, "profile.html", context)

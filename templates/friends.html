@@ -43,6 +43,13 @@
     <div id="post-container" class="flex flex-col items-stretch min-h-[400px]">
         {% for post in posts %}
         <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 mb-4">
+            <form method="POST">
+                {% csrf_token %}
+                <button class="bg-green-500" type="submit" name="experience">
+                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                    View
+                </button>
+            </form>
             <!-- Post Info -->
             <div class="flex justify-between items-center">
                 <div>
@@ -80,8 +87,8 @@
                     <i class="fa-regular fa-heart"></i>
                     {% endif %}
                 </button>
-                <p class="text-gray-300">Number of likes: {{ post.liked_by.all|length }}</p>
             </form>
+            
         </div>
         {% empty %}
         <!-- Message for No Posts -->
@@ -91,5 +98,7 @@
         {% endfor %}
     </div>
 </div>
+
+
 
 {% endblock %}

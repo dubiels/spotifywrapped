@@ -380,6 +380,18 @@ def add_friend(friend_name, user):
     user.friends.add(new_friend[0])
     return
 
+def single_post(request, id):
+    #post_id = request.GET.get("id")
+    post = Post.objects.filter(id=id)[0]
+    wrap = post.wrap
+    print(wrap)
+    print(type(wrap))
+    print("SINGLE WRAP TOP TRACKS", wrap.top_tracks, wrap.top_artists, wrap.top_genres)
+    context = {
+        "wrap": wrap,
+    }
+    return render(request, "single_post.html", context)
+
 def friends(request):
     # Retrieve all the users and their friends' posts
     user_posts = request.user.posts.all()
@@ -409,7 +421,10 @@ def friends(request):
 
     if request.method == "POST":
         # Redirect to new post page for creating a new post
-        if "create_post" in request.POST.keys():
+        if "experience" in request.POST.keys():
+            post_id = request.POST.get("post_id")
+            return redirect('single_post', id=post_id)
+        elif "create_post" in request.POST.keys():
             return redirect("/new_post/")
         # Add the user to the liked by field of the post
         elif "favorite" in request.POST.keys():

@@ -378,6 +378,11 @@ def friends(request):
                 liked_post.liked_by.add(request.user)
                 #print("added", liked_post.liked_by.all())
             return redirect("/friends/")
+        elif "share" in request.POST.keys():
+            post_id = request.POST.get("post_id")
+            share_post = Post.objects.get(id=post_id)
+            
+            pass
 
     return render(request, 'friends.html', context)
 

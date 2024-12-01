@@ -393,7 +393,7 @@ def friends(request):
         posts = Post.objects.filter(liked_by=request.user)
     elif filter_value == "recent":
         one_week_ago = now() - timedelta(days=7)
-        posts = Post.objects.filter(created_at=one_week_ago)
+        posts = Post.objects.filter(created_at__lt=one_week_ago)
     else:
         posts = all_posts
 
@@ -457,9 +457,7 @@ def profile(request):
         return redirect("home")
     
     if request.method == "POST" and "logout" in request.POST:
-        logout(request)
-        request.session.flush()
-        return redirect("home")
+        return logout_view(request)
 
     context = {
         "user": request.user,

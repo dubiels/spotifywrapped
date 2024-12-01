@@ -4,21 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logging out...</title>
+    <title>Logging Out</title>
     <script type="text/javascript">
         window.onload = function() {
-            const spotifyLogoutUrl = "https://accounts.spotify.com/logout";
+            // Open Spotify logout URL in a new tab
+            const spotifyLogoutUrl = "{{ spotify_logout_url }}";
             window.open(spotifyLogoutUrl, "_blank");
 
+            // Redirect back to the homepage after 2 seconds
             setTimeout(function() {
-                window.location.href = "{% url 'home' %}";
-            }, 1000);
+                window.location.href = "{% url redirect_url %}";
+            }, 2000);
         }
     </script>
 </head>
 <body>
-    <h1>Logging you out...</h1>
-    <p>You are being logged out from Spotify in a new tab.</p>
+    <h1>Logging Out...</h1>
+    <p>You are being logged out of Spotify. Please close the new tab manually if it does not close automatically.</p>
     <p>Redirecting you back to the home page...</p>
 </body>
 </html>

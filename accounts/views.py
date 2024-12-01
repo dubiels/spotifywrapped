@@ -23,7 +23,9 @@ from datetime import timedelta
 
 
 def home(request):
-    if request.user.is_authenticated:
+    access_token = request.session.get('spotify_access_token')
+
+    if request.user.is_authenticated and access_token:
         return redirect('dashboard')    
     
     return render(request, 'home.html')
@@ -36,6 +38,7 @@ def spotify_login(request):
     state = generate_state()
     request.session.flush()
     request.session['spotify_auth_state'] = state
+
     spotify_auth_url = "https://accounts.spotify.com/authorize"
     
     params = {
@@ -44,6 +47,7 @@ def spotify_login(request):
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
         'scope': 'user-top-read user-read-email streaming user-read-private user-modify-playback-state',
         'state': state,
+        'show_dialog': 'true',
     }
     
     return redirect(f"{spotify_auth_url}?{urlencode(params)}")
@@ -116,6 +120,7 @@ def get_access_token(request):
 @login_required
 def dashboard(request):
     access_token = request.session.get('spotify_access_token')
+    print("Access Token in Dashboard:", access_token)
     if not access_token:
         return JsonResponse({'error': 'Spotify access token missing'}, status=401)
 
@@ -219,13 +224,26 @@ def wrap_detail(request, wrap_id):
 def logout_view(request):
     logout(request)
     request.session.flush()
-    return render(request, 'logout.html')
+
+    spotify_logout_url = "https://accounts.spotify.com/logout"
+
+    return render(request, 'logout.html', {
+        'spotify_logout_url': spotify_logout_url,
+        'redirect_url': 'home',
+    })
 
 @login_required
 def delete_account(request):
     if request.method == 'POST':
+        username = request.user.username
+
+        logout(request)
         request.user.delete()
+
+        messages.success(request, f"Your account '{username}' has been deleted successfully.")
+
         return redirect('signup')
+
     return render(request, 'delete_account.html')
 
 @login_required

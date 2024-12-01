@@ -18,6 +18,8 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from datetime import timedelta
+from django.utils.timezone import now
 
 def home(request):
     if request.user.is_authenticated:

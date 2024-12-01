@@ -20,6 +20,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 from datetime import timedelta
+from django.http import Http404
 
 
 def home(request):
@@ -41,26 +42,34 @@ def spotify_login(request):
 
     spotify_auth_url = "https://accounts.spotify.com/authorize"
     
+    force_show_dialog = request.GET.get("show_dialog", "false").lower() == "true"
+
     params = {
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'response_type': 'code',
         'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
         'scope': 'user-top-read user-read-email streaming user-read-private user-modify-playback-state',
         'state': state,
-        'show_dialog': 'true',
     }
+
+    if force_show_dialog:
+        params['show_dialog'] = 'true'
     
     return redirect(f"{spotify_auth_url}?{urlencode(params)}")
 
 # Spotify will redirect here after user login
 def spotify_callback(request):
-    #print("Entered spotify_callback")
     code = request.GET.get('code')
     state = request.GET.get('state')
+
+    # Debug State
+    print("Session State (stored):", request.session.get('spotify_auth_state'))
+    print("Callback State (received):", state)
 
     if state != request.session.get('spotify_auth_state'):
         return JsonResponse({'error': 'State mismatch'}, status=400)
 
+    # Token Exchange
     token_url = "https://accounts.spotify.com/api/token"
     payload = {
         'grant_type': 'authorization_code',
@@ -69,47 +78,65 @@ def spotify_callback(request):
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
         'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET'),
     }
-
     response = requests.post(token_url, data=payload)
-    token_data = response.json()
-    #print("Token Data:", token_data)
 
-    if 'scope' in token_data:
-        print("Token scopes:", token_data['scope'])
-    else:
-        print("Scope field missing in token response")
+    # Log Token Response
+    print("Token Response Status Code:", response.status_code)
+    print("Token Response Content:", response.text)
 
-    if 'access_token' in token_data:
-        access_token = token_data['access_token']
-        request.session['spotify_access_token'] = access_token
+    try:
+        token_data = response.json()
+    except ValueError:
+        return JsonResponse({'error': 'Invalid token response from Spotify'}, status=500)
 
-        user_info_url = "https://api.spotify.com/v1/me"
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-        }
-        user_info_response = requests.get(user_info_url, headers=headers)
+    access_token = token_data.get('access_token')
+    if not access_token:
+        return JsonResponse({'error': 'Failed to fetch access token', 'details': token_data}, status=400)
+
+    # Fetch User Info
+    user_info_url = "https://api.spotify.com/v1/me"
+    headers = {'Authorization': f'Bearer {access_token}'}
+    user_info_response = requests.get(user_info_url, headers=headers)
+
+    print("User Info Response Status Code:", user_info_response.status_code)
+    print("User Info Response Content:", user_info_response.text)
+
+    try:
         user_info = user_info_response.json()
-        #print("User Info:", user_info)
+    except ValueError:
+        print("User Info Response (raw):", user_info_response.text)
+        return JsonResponse({'error': 'Invalid user info response from Spotify'}, status=500)
 
-        spotify_email = user_info.get('email')
-        spotify_username = user_info.get('id')
-        spotify_first_name = user_info.get('display_name', '').split(' ')[0] or 'SpotifyUser'
-        spotify_last_name = user_info.get('display_name', '').split(' ')[-1] or 'User'
+    # Extract User Data
+    spotify_email = user_info.get('email') or f"user_{uuid.uuid4().hex[:8]}@example.com"
+    spotify_username = user_info.get('id') or f"user_{uuid.uuid4().hex[:8]}"
+    spotify_first_name = user_info.get('display_name', '').split(' ')[0] or 'SpotifyUser'
+    spotify_last_name = user_info.get('display_name', '').split(' ')[-1] or 'User'
 
-        user, created = Account.objects.get_or_create(
-            email=spotify_email,
-            defaults={
-                'username': spotify_username,
-                'first_name': spotify_first_name,
-                'last_name': spotify_last_name,
-                'is_active': True,
-            }
-        )
+    # Create or Fetch User
+    user, created = Account.objects.get_or_create(
+        email=spotify_email,
+        defaults={
+            'username': spotify_username,
+            'first_name': spotify_first_name,
+            'last_name': spotify_last_name,
+            'is_active': True,
+        }
+    )
 
-        login(request, user)
-        return redirect('dashboard')
-    else:
-        return JsonResponse({'error': 'Failed to authenticate with Spotify', 'details': token_data}, status=400)
+    # Handle Username Conflicts
+    if not created and user.username != spotify_username:
+        print("Username conflict detected. Generating a new unique username.")
+        username = spotify_username
+        while Account.objects.filter(username=username).exists():
+            username = f"{spotify_username}_{uuid.uuid4().hex[:8]}"
+        user.username = username
+        user.save()
+
+    # Login the User
+    login(request, user)
+    request.session['spotify_access_token'] = access_token
+    return redirect('dashboard')
 
 def get_access_token(request):
     access_token = request.session.get('spotify_access_token')
@@ -120,9 +147,17 @@ def get_access_token(request):
 @login_required
 def dashboard(request):
     access_token = request.session.get('spotify_access_token')
-    print("Access Token in Dashboard:", access_token)
+    
     if not access_token:
-        return JsonResponse({'error': 'Spotify access token missing'}, status=401)
+        print("Access token missing. Redirecting to Spotify login.")
+        return spotify_login(request, force_show_dialog=False)
+
+    if request.method == "POST" and "delete_friend_id" in request.POST:
+        friend_id = request.POST.get("delete_friend_id")
+        friend = Account.objects.filter(id=friend_id).first()
+        if friend and friend in request.user.friends.all():
+            request.user.friends.remove(friend)
+            print(f"Friend {friend.username} removed successfully.")
 
     top_artists = get_top_artists(access_token)
     top_genres = get_top_genres(access_token)
@@ -400,13 +435,34 @@ def add_friend(friend_name, user):
 
 def single_post(request, id):
     #post_id = request.GET.get("id")
-    post = Post.objects.filter(id=id)[0]
+    posts = Post.objects.filter(id=id)
+    if not posts.exists():
+        raise Http404("Post not found")
+    
+    post = posts[0]
     wrap = post.wrap
+    
     print(wrap)
     print(type(wrap))
     print("SINGLE WRAP TOP TRACKS", wrap.top_tracks, wrap.top_artists, wrap.top_genres)
+
+    if request.method == "POST":
+        # Handle the delete request
+        if "delete_wrap" in request.POST:
+            wrap_id = request.POST.get("wrap_id")
+            print(f"Request to delete Wrap ID: {wrap_id}")
+
+            # Verify that the wrap to be deleted matches the wrap associated with the post
+            if str(wrap.id) == wrap_id:
+                wrap.delete()
+                print(f"Wrap ID {wrap_id} deleted successfully.")
+                return redirect("friends")  # Redirect to the dashboard or another appropriate page
+            else:
+                print(f"Wrap ID mismatch: {wrap_id} does not match Wrap ID {wrap.id}")
+
     context = {
         "wrap": wrap,
+        "post": post,
     }
     return render(request, "single_post.html", context)
 

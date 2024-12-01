@@ -234,13 +234,13 @@
             </div>
 
             <!-- Delete Button -->
-            <form method="POST" class="inline-block">
+            <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="wrap_id" value="{{ wrap.id }}">
                 <button 
                     type="submit" 
                     name="delete_wrap" 
-                    class="bg-red-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-600 transition-shadow shadow-lg"
+                    class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-red-600 transition shadow-md"
                 >
                     Delete Wrap
                 </button>

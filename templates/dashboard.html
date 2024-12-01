@@ -485,32 +485,58 @@
 
 
 
-  <section class="mt-10"></section>
-    <h2 class="text-2xl font-semibold mb-4 text-center">Your Friends</h2>
-    <form method="POST" action="#">
+  <div class="mt-8">
+    <h2 class="text-2xl font-semibold text-gray-100 mb-6 text-center">Your Friends</h2>
+  
+    <!-- Add Friend Section -->
+    <form method="POST" action="#" class="flex justify-center items-center space-x-4 mb-6">
       {% csrf_token %}
-      <input class="text-black" id="friend_name" name="friend_name" autocomplete="off">
-      </input>
-      <button type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">
+      <div class="flex items-center space-x-2">
+        <input
+          class="text-gray-800 p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          placeholder="Enter Spotify ID"
+          id="friend_name"
+          name="friend_name"
+          autocomplete="off"
+          style="width: 250px; height: 44px;"
+        />
+      </div>
+      <button
+        type="submit"
+        class="bg-green-500 text-white font-semibold px-6 rounded-lg hover:bg-green-600 transition"
+        style="height: 44px;"
+      >
         Add Friend +
       </button>
     </form>
-    <div class="flex justify-center space-x-4 flex-wrap"></div>
+  
+    <!-- Friends List -->
+    <div class="flex flex-col items-center space-y-4">
       {% for friend in friends %}
-      <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
-        {{ friend }}
+      <div class="flex items-center bg-gray-800 text-white rounded-lg px-4 py-2 w-full max-w-md shadow-lg space-x-4">
+        <span class="flex-grow font-medium">{{ friend.username }}</span>
+        <form method="POST" action="#">
+          {% csrf_token %}
+          <input type="hidden" name="delete_friend_id" value="{{ friend.id }}">
+          <button
+            type="submit"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-4 rounded-lg transition"
+            style="height: 44px;" 
+          >
+            Delete
+          </button>
+        </form>
       </div>
       {% empty %}
-      <p class="text-gray-500">You have no friends</p>
+      <p class="text-gray-500 text-center">You have no friends yet.</p>
       {% endfor %}
-
-      {% if invalid_username %}
-      You provided an invalid username
-      {% else %}
-
-      {% endif %}
     </div>
-  </section>
+  </div>
+  
+  
+    
+    
+      
 </div>
 
 <script>

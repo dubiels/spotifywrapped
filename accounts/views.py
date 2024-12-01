@@ -42,7 +42,7 @@ def spotify_login(request):
 
     spotify_auth_url = "https://accounts.spotify.com/authorize"
     
-    force_show_dialog = request.GET.get("show_dialog", "false").lower() == "true"
+    force_show_dialog = request.user.is_authenticated
 
     params = {
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
@@ -52,8 +52,10 @@ def spotify_login(request):
         'state': state,
     }
 
-    if force_show_dialog:
+    if not request.user.is_authenticated:  # User is not authenticated, show dialog
         params['show_dialog'] = 'true'
+    else:  # User is already authenticated, no need to show dialog
+        params['show_dialog'] = 'false'
     
     return redirect(f"{spotify_auth_url}?{urlencode(params)}")
 
@@ -68,7 +70,11 @@ def spotify_callback(request):
 
     if state != request.session.get('spotify_auth_state'):
         return JsonResponse({'error': 'State mismatch'}, status=400)
-
+    
+    if not code:
+        print("User cancelled the login. Redirecting to home.")
+        return redirect('home')
+    
     # Token Exchange
     token_url = "https://accounts.spotify.com/api/token"
     payload = {
@@ -150,7 +156,7 @@ def dashboard(request):
     
     if not access_token:
         print("Access token missing. Redirecting to Spotify login.")
-        return spotify_login(request, force_show_dialog=False)
+        return spotify_login(request)
 
     if request.method == "POST" and "delete_friend_id" in request.POST:
         friend_id = request.POST.get("delete_friend_id")
@@ -277,7 +283,7 @@ def delete_account(request):
 
         messages.success(request, f"Your account '{username}' has been deleted successfully.")
 
-        return redirect('signup')
+        return redirect(spotify_login)
 
     return render(request, 'delete_account.html')
 
@@ -375,6 +381,12 @@ def fetch_top_tracks(request):
     return JsonResponse({'top_tracks': top_tracks})
 
 def about(request):
+    access_token = request.session.get('spotify_access_token')
+    
+    if not access_token:
+        print("Access token missing. Redirecting to Spotify login.")
+        return spotify_login(request, force_show_dialog=False)
+    
     context = {"access_token": request.session.get('spotify_access_token')}
     return render(request, 'about.html', context)
 
@@ -405,18 +417,22 @@ def get_user_top_tracks(access_token, limit=15, time_range='medium_term'):
 
 def feedback_view(request):
     if request.method == 'POST':
-        # print("Form submission detected")
         form = FeedbackForm(request.POST)
         if form.is_valid():
             form.save()
-            send_mail(
-                subject="Feedback Form Submission",
-                message="Feedback form sent to your Spotify Email Address! Thank you so much.",
-                from_email="esther514514@gmail.com",
-                recipient_list=[request.user.email],
-                fail_silently=False,
-            )
-            print(f"Email sent to {request.user.email}")
+
+            # Check if the user is logged in before sending the email
+            if request.user.is_authenticated:
+                send_mail(
+                    subject="Feedback Form Submission",
+                    message="Feedback form sent to your Spotify Email Address! Thank you so much.",
+                    from_email="esther514514@gmail.com",
+                    recipient_list=[request.user.email],
+                    fail_silently=False,
+                )
+                print(f"Email sent to {request.user.email}")
+            
+            # Redirect to the 'about' page with a submission success flag
             return HttpResponseRedirect('/about/?submitted=true')
         else:
             print("Form is invalid:", form.errors)
@@ -466,25 +482,27 @@ def single_post(request, id):
     }
     return render(request, "single_post.html", context)
 
+@login_required
 def friends(request):
-    # Retrieve all the users and their friends' posts
-    user_posts = request.user.posts.all()
-    friends = request.user.friends.all()
-    all_posts = user_posts
-    for friend in friends:
-        all_posts = all_posts | friend.posts.all()
-
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        print("Access token missing. Redirecting to Spotify login.")
+        return spotify_login(request)
+    # Retrieve all posts
+    all_posts = Post.objects.all().order_by('-created_at')
+    # Handle filters
     filter_value = request.GET.get("filter", "all")
     if filter_value == "liked":
-        posts = Post.objects.filter(liked_by=request.user)
+        posts = all_posts.filter(liked_by=request.user)
     elif filter_value == "recent":
         one_week_ago = now() - timedelta(days=7)
-        posts = Post.objects.filter(created_at__lt=one_week_ago)
+        posts = all_posts.filter(created_at__gte=one_week_ago)
     elif filter_value == "follow":
-        posts = Post.objects.none()
-        for i in friends:
-            posts = posts | Post.objects.filter(user=i)
+        # Only posts from friends
+        friends = request.user.friends.all()
+        posts = all_posts.filter(user__in=friends)
     else:
+        # Default: show all posts
         posts = all_posts
 
     context = {
@@ -544,6 +562,11 @@ def new_post(request):
 
 @login_required
 def profile(request):
+    access_token = request.session.get('spotify_access_token')
+    if not access_token:
+        print("Access token missing. Redirecting to Spotify login.")
+        return spotify_login(request)
+    
     if request.method == "POST" and "delete_account" in request.POST:
         user = request.user
         user.delete()

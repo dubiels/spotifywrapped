@@ -22,6 +22,9 @@
             <div class="carousel-inner h-100 w-100">
                 {% for track in wrap.top_tracks.all %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                    <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                        #{{ forloop.counter }}
+                    </div>
                     <img
                         src="{{ track.album_cover_url }}"
                         alt="{{ track.album }}"
@@ -93,6 +96,9 @@
             <div class="carousel-inner h-100 w-100">
                 {% for artist in wrap.top_artists.all %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                    <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                        #{{ forloop.counter }}
+                    </div>
                     <img
                         src="{{ artist.image_url }}"
                         alt="{{ artist.name }}"
@@ -151,7 +157,10 @@
         >
             <div class="carousel-inner h-100 w-100">
                 {% for genre in wrap.top_genres.all %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100">
+                <div class="carousel-item {% if forloop.first %}active{% endif %} h-100 w-100 position-relative">
+                    <div class="position-absolute top-0 left-0 p-3 text-white text-2xl font-bold z-[10]">
+                        #{{ forloop.counter }}
+                    </div>
                     <div
                         class="position-relative h-100 w-100"
                         style="

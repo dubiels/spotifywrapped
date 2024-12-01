@@ -26,7 +26,7 @@
 
         // Redirect back to the homepage after 2 seconds
         setTimeout(function () {
-            window.location.href = "{% url redirect_url %}";
+            window.location.href = "{% url 'home' %}";  // This will redirect to home page after logging out
         }, 2000);
     };
 </script>

@@ -1,53 +1,94 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
 
-<div>
-    <div clas>
-        <form method="POST">
-            {% csrf_token %}
-              <input type="hidden" name="create_post" id="create_post">
-              <button id="create-button" type="submit" class="bg-green-500 text-white font-semibold py-1 px-4 rounded-full hover:bg-green-600 transition">Create Post</button>
-          </form>
-    </div>
-
-    <div class="py-4">
-        <label for="filter" class="text-white font-semibold">Filter Posts:</label>
-        <form method="GET" class="inline" id="filterForm">
-            {% csrf_token %}
-            <select id="filter" name="filter" class="bg-gray-700 text-white rounded-lg p-2" onchange="document.getElementById('filterForm').submit();">
-                <option value="all" {% if filter_val == "all" %}selected{% endif %}>All</option>
-                <option value="liked" {% if filter_val == "liked" %}selected{% endif %}>Liked by You</option>
-                <option value="recent" {% if filter_val == "recent" %}selected{% endif %}>Recently Created</option>
-            </select>
-        </form>
-    </div>
-
-    <div class="py-10" id="">
-        <div id="post-list">
-            {% for post in posts %}
-            <div class="bg-gray-800 text-white rounded-full px-4 py-2 m-2">
-                {{ post.user }}
-                {{ post.created_at }}
-                {{ post.wrap }}
-                {% for user in post.liked_by.all %}
-                    {{ user.id }}
-                {% endfor %}
-                <form method="POST" action="#" class="mb-2">
-                    {% csrf_token %}
-                    <button type="submit" id="heartButton" name="favorite" class="flex items-center p-2 mt-4 bg-black rounded-lg shadow hover:bg-gray-200 transition duration-300">
-                    <input type="hidden" name="post_id" value="{{ post.id }}">
-                      {% if user in post.liked_by.all %}
-                      <i class="fa-solid fa-heart"></i>
-                      {% else %}
-                      <i class="fa-regular fa-heart"></i>
-                      {% endif %}
-                    </button>
-                    <div class="text-white">
-                        Number of likes: {{ post.liked_by.all|length }}
-                    </div>
-                </form>
-            </div>
-            {% endfor %}
+<div class="container mx-auto p-6">
+    <!-- Fixed Header Section -->
+    <div class="flex flex-col lg:flex-row justify-between items-center mb-8 space-y-4 lg:space-y-0">
+        <!-- Create Post Section -->
+        <div>
+            <form method="POST" class="flex items-center">
+                {% csrf_token %}
+                <input type="hidden" name="create_post" id="create_post">
+                <button 
+                    id="create-button" 
+                    type="submit" 
+                    class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-lg"
+                >
+                    Create Post
+                </button>
+            </form>
         </div>
+
+        <!-- Filter Posts Section -->
+        <div>
+            <form method="GET" id="filterForm" class="flex items-center space-x-4">
+                {% csrf_token %}
+                <label for="filter" class="text-white font-semibold">Filter Posts:</label>
+                <select 
+                    id="filter" 
+                    name="filter" 
+                    class="bg-gray-700 text-white rounded-lg p-2 shadow focus:ring focus:ring-blue-500 focus:outline-none"
+                    onchange="document.getElementById('filterForm').submit();"
+                >
+                    <option value="all" {% if filter_val == "all" %}selected{% endif %}>All</option>
+                    <option value="liked" {% if filter_val == "liked" %}selected{% endif %}>Liked by You</option>
+                    <option value="recent" {% if filter_val == "recent" %}selected{% endif %}>Recently Created</option>
+                    <option value="follow" {% if filter_val == "follow" %}selected{% endif %}>Followed Users</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Posts List -->
+    <div id="post-container" class="flex flex-col items-stretch min-h-[400px]">
+        {% for post in posts %}
+        <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 mb-4">
+            <!-- Post Info -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="font-bold">{{ post.user }}</p>
+                    <p class="text-sm text-gray-400">{{ post.created_at }}</p>
+                </div>
+                <div class="bg-gray-900 text-white px-3 py-1 rounded-lg text-sm">
+                    Wrap: {{ post.wrap }}
+                </div>
+            </div>
+
+            <!-- Likes -->
+            <div>
+                <div class="flex flex-wrap gap-2">
+                    <p class="text-gray-400">Liked by:</p>
+                    {% for user in post.liked_by.all %}
+                    <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ user.first_name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Like Button -->
+            <form method="POST" action="#" class="flex items-center space-x-3">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <button 
+                    type="submit" 
+                    id="heartButton" 
+                    name="favorite" 
+                    class="flex items-center px-4 py-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition"
+                >
+                    {% if user in post.liked_by.all %}
+                    <i class="fa-solid fa-heart"></i>
+                    {% else %}
+                    <i class="fa-regular fa-heart"></i>
+                    {% endif %}
+                </button>
+                <p class="text-gray-300">Number of likes: {{ post.liked_by.all|length }}</p>
+            </form>
+        </div>
+        {% empty %}
+        <!-- Message for No Posts -->
+        <div class="flex-grow flex justify-center items-center text-gray-400">
+            <p>No posts available.</p>
+        </div>
+        {% endfor %}
     </div>
 </div>
 

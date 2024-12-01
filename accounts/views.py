@@ -18,6 +18,9 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
+from datetime import timedelta
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -121,11 +124,24 @@ def dashboard(request):
     top_tracks = get_user_top_tracks(access_token)
     user_wraps = Wrap.objects.all().filter(user=request.user)
     wraps = []
-    for i in range(len(user_wraps)):
-        wraps.append({"overview": user_wraps[i], "top_tracks": user_wraps[i].top_tracks.all(), "top_artists": user_wraps[i].top_artists.all()})
+
+    for wrap in user_wraps:
+        wraps.append({
+            "overview": wrap,
+            "top_tracks": wrap.top_tracks.all(),
+            "top_artists": wrap.top_artists.all(),
+            "top_genres": wrap.top_genres.all(),  # This is now a queryset of Genre objects
+        })
+
+    # print("Wraps:", wraps)
+
+    if request.method == "POST":
+        if "delete_wrap" in request.POST:
+            wrap_id = request.POST.get("wrap_id")
+            Wrap.objects.filter(id=wrap_id, user=request.user).delete()
+            return redirect("dashboard")
 
     friends = request.user.friends.all()
-    print("FRIENDS in DASH", friends)
 
     context = {
         'top_artists': top_artists,
@@ -139,7 +155,6 @@ def dashboard(request):
 
     if request.method == "POST":
         if "timeframe_select" in request.POST.keys():
-            #print("TIMEFRAME SELECT", request.POST.get("timeframe_select"))
             create_wrap(access_token, request.POST.get("timeframe_select"), request.user, request.POST.get("new_wrap_name"))
             return redirect("/dashboard/")
         if "friend_name" in request.POST.keys() and request.POST.get("friend_name") != "":
@@ -154,27 +169,42 @@ def dashboard(request):
 
 def create_wrap(access_token, time_frame, user, title="My Wrap"):
     top_artists = get_top_artists(access_token, time_frame=time_frame)
-    #print("TOP ARTISTS WRAP\n", top_artists, "\n")
     top_genres = get_top_genres(access_token, time_frame=time_frame)
-    #print("TOP GENRES WRAP\n", top_genres, "\n")
     top_tracks = get_user_top_tracks(access_token, time_range=time_frame)
-    #print("TOP TRACKS WRAP\n", top_tracks, "\n")
 
-    tempWrap = Wrap(user=user, title=title, top_genres=str(top_genres))
+    # Create the wrap instance
+    tempWrap = Wrap(user=user, title=title)
     tempWrap.save()
 
-    for i in top_artists:
-        tempArtist, created = Artist.objects.get_or_create(name=i['name'])
-        tempArtist.image_url = i['image_url']
+    # Add genres to the wrap
+    for genre in top_genres:
+        tempGenre, created = Genre.objects.get_or_create(name=genre)
+        tempWrap.top_genres.add(tempGenre)
+        print(f"Added Genre: {tempGenre.name} to Wrap: {tempWrap.title}")  # Debugging log
+
+    # Add artists to the wrap
+    for artist_data in top_artists:
+        tempArtist, created = Artist.objects.get_or_create(name=artist_data['name'])
+        tempArtist.image_url = artist_data.get('image_url', '')
         tempArtist.save()
         tempWrap.top_artists.add(tempArtist)
-    for i in top_tracks:
-        print(i['name'])
-        if (i['preview_url'] == None):
-            i['preview_url'] = "No URL"
-        artist, created = Artist.objects.get_or_create(name=i['artist'])
-        tempSong, created = Song.objects.get_or_create(name=i['name'], artist=artist, album=i['album'], preview_url=i['preview_url'], album_cover_url=i['album_cover_url'])
+
+    # Add tracks to the wrap
+    for track_data in top_tracks:
+        artist, created = Artist.objects.get_or_create(name=track_data['artist'])
+        tempSong, created = Song.objects.get_or_create(
+            name=track_data['name'],
+            artist=artist,
+            album=track_data['album'],
+            preview_url=track_data.get('preview_url', 'No URL'),
+            album_cover_url=track_data.get('album_cover_url', '')
+        )
         tempWrap.top_tracks.add(tempSong)
+
+    # Save the wrap with all associated data
+    tempWrap.save()
+
+    return tempWrap
 
 @login_required
 def past_wraps(request):
@@ -207,35 +237,36 @@ def like_post(request, post_id):
         post.likes.add(request.user)
     return JsonResponse({'likes_count': post.total_likes()})
 
-@login_required
-def follow_user(request, user_id):
-    user_to_follow = get_object_or_404(Account, id=user_id)
-    if request.user != user_to_follow:
-        if request.user.following_posts.filter(id=user_to_follow.id).exists():
-            request.user.following_posts.remove(user_to_follow)
-        else:
-            request.user.following_posts.add(user_to_follow)
-    return redirect('some_view')
+# @login_required
+# def follow_user(request, user_id):
+#     user_to_follow = get_object_or_404(Account, id=user_id)
+#     if request.user != user_to_follow:
+#         if request.user.following_posts.filter(id=user_to_follow.id).exists():
+#             request.user.following_posts.remove(user_to_follow)
+#         else:
+#             request.user.following_posts.add(user_to_follow)
+#     return redirect('some_view')
 
-@login_required
-def followed_posts(request):
-    followed_users = request.user.following_posts.all()
-    posts = PublicWrapPost.objects.filter(user__in=followed_users)
+# @login_required
+# def followed_posts(request):
+#     followed_users = request.user.following_posts.all()
+#     posts = PublicWrapPost.objects.filter(user__in=followed_users)
     
-    posts_with_names = []
-    for post in posts:
-        posts_with_names.append({
-            'post': post,
-            'full_name': post.user.full_name()
-        })
+#     posts_with_names = []
+#     for post in posts:
+#         posts_with_names.append({
+#             'post': post,
+#             'full_name': post.user.full_name()
+#         })
         
-    return render(request, 'followed_posts.html', {'followed_posts': posts_with_names})
+#     return render(request, 'followed_posts.html', {'followed_posts': posts_with_names})
 
 @login_required
 def toggle_dark_mode(request):
+    print("Toggle Dark Mode view called!")  # Debug
     settings, created = UserSettings.objects.get_or_create(user=request.user)
     settings.toggle_dark_mode()
-    
+    print(f"Dark mode toggled: {settings.dark_mode}")  # Debug
     return JsonResponse({'dark_mode': settings.dark_mode})
 
 def get_top_artists(access_token, time_frame="medium_term"):
@@ -272,6 +303,7 @@ def get_top_genres(access_token, time_frame="medium_term"):
     if response.status_code == 200:
         data = response.json()
         top_genres = list({genre for artist in data.get('items', []) for genre in artist.get('genres', [])})
+        print("Fetched Genres:", top_genres)
         return top_genres
     else:
         print("Error fetching top genres:", response.json())
@@ -361,7 +393,11 @@ def friends(request):
         posts = Post.objects.filter(liked_by=request.user)
     elif filter_value == "recent":
         one_week_ago = now() - timedelta(days=7)
-        posts = Post.objects.filter(created_at=one_week_ago)
+        posts = Post.objects.filter(created_at__lt=one_week_ago)
+    elif filter_value == "follow":
+        posts = Post.objects.none()
+        for i in friends:
+            posts = posts | Post.objects.filter(user=i)
     else:
         posts = all_posts
 
@@ -425,9 +461,7 @@ def profile(request):
         return redirect("home")
     
     if request.method == "POST" and "logout" in request.POST:
-        logout(request)
-        request.session.flush()
-        return redirect("home")
+        return logout_view(request)
 
     context = {
         "user": request.user,

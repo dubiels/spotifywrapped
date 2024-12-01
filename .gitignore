@@ -1,7 +1,7 @@
-accounts/__pycache__/
+accounts/pycache/
 accounts/migrations/
-accounts/.DS_Store
-spotifyWrapped/__pycache__/
+accounts/.DSStore
+spotifyWrapped/_pycache/
 .DS_Store
 .env
 .venv

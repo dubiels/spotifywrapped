@@ -9,8 +9,8 @@ urlpatterns = [
     path('wraps/', views.past_wraps, name='past_wraps'),
     path('wraps/<int:wrap_id>/', views.wrap_detail, name='wrap_detail'),
     path('like-post/<int:post_id>/', views.like_post, name='like_post'),
-    path('follow-user/<int:user_id>/', views.follow_user, name='follow_user'),
-    path('followed-posts/', views.followed_posts, name='followed_posts'),
+    # path('follow-user/<int:user_id>/', views.follow_user, name='follow_user'),
+    # path('followed-posts/', views.followed_posts, name='followed_posts'),
     path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
     path('logout/', views.logout_view, name='logout'),
     path('delete-account/', views.delete_account, name='delete_account'),
@@ -20,4 +20,6 @@ urlpatterns = [
     path('about/', views.feedback_view, name='about'),
     path('friends/', views.friends, name="friends"),
     path('new_post/', views.new_post, name="new_post"),
+    path('profile/', views.profile, name="profile"),
+    path('single_post/<int:id>/', views.single_post, name='single_post')
 ]

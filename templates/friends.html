@@ -12,7 +12,7 @@
                 <button 
                     id="create-button" 
                     type="submit" 
-                    class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-600 transition shadow-lg"
+                    class="bg-green-600 text-white font-semibold py-2 px-6 rounded-full hover:bg-green-700 transition shadow-lg"
                 >
                     Create Post
                 </button>
@@ -23,7 +23,7 @@
         <div>
             <form method="GET" id="filterForm" class="flex items-center space-x-4">
                 {% csrf_token %}
-                <label for="filter" class="text-white font-semibold">Filter Posts:</label>
+                <label for="filter" class="text-gray-200 font-semibold">Filter Posts:</label>
                 <select 
                     id="filter" 
                     name="filter" 
@@ -33,62 +33,131 @@
                     <option value="all" {% if filter_val == "all" %}selected{% endif %}>All</option>
                     <option value="liked" {% if filter_val == "liked" %}selected{% endif %}>Liked by You</option>
                     <option value="recent" {% if filter_val == "recent" %}selected{% endif %}>Recently Created</option>
-                    <option value="follow" {% if filter_val == "follow" %}selected{% endif %}>Followed Users</option>
+                    <option value="follow" {% if filter_val == "follow" %}selected{% endif %}>Followed Friends</option>
                 </select>
             </form>
         </div>
     </div>
 
     <!-- Posts List -->
-    <div id="post-container" class="flex flex-col items-stretch min-h-[400px]">
+    <div id="post-container" class="flex flex-col items-stretch min-h-[400px] space-y-6">
         {% for post in posts %}
-        <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 mb-4">
-            <form method="POST">
-                {% csrf_token %}
-                <button class="bg-green-500" type="submit" name="experience">
-                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
-                    View
-                </button>
-            </form>
-            <!-- Post Info -->
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="font-bold">{{ post.user }}</p>
-                    <p class="text-sm text-gray-400">{{ post.created_at }}</p>
+        <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 space-y-4">
+            <!-- Post Header -->
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4">
+                <!-- User Info -->
+                <div class="flex flex-col items-start space-y-1">
+                    <p class="font-bold text-xl">{{ post.user.first_name }}</p>
+                    <p class="text-sm text-gray-400">Posted on: {{ post.created_at|date:"F j, Y" }}</p>
                 </div>
-                <div class="bg-gray-900 text-white px-3 py-1 rounded-lg text-sm">
-                    Wrap: {{ post.wrap }}
-                </div>
+                <!-- Wrap Title -->
+                <div class="text-green-600 text-xl font-bold">
+                    {{ post.wrap.title }}
+                </div>                            
             </div>
-
-            <!-- Likes -->
-            <div>
-                <div class="flex flex-wrap gap-2">
-                    <p class="text-gray-400">Liked by:</p>
-                    {% for user in post.liked_by.all %}
-                    <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ user.first_name }}</span>
-                    {% endfor %}
+    
+            <!-- Post Body -->
+            <div class="flex items-center justify-between mt-6 gap-6">
+                <!-- Phrase Section -->
+                <div class="flex-1 max-w-lg">
+                    <p class="text-xl font-semibold text-gray-300 text-left">
+                        <span class="text-green-400">{{ post.user.first_name }}</span>'s favorite picks from this wrap post! <br />
+                        They loved the genre of 
+                        <span class="text-green-400">{{ post.wrap.top_genres.all.0.name }}</span>. <br />
+                        Here are their favorite track and artist:
+                    </p>
                 </div>
-            </div>
-
-            <!-- Like Button -->
-            <form method="POST" action="#" class="flex items-center space-x-3">
-                {% csrf_token %}
-                <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button 
-                    type="submit" 
-                    id="heartButton" 
-                    name="favorite" 
-                    class="flex items-center px-4 py-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition"
-                >
-                    {% if user in post.liked_by.all %}
-                    <i class="fa-solid fa-heart"></i>
-                    {% else %}
-                    <i class="fa-regular fa-heart"></i>
-                    {% endif %}
-                </button>
-            </form>
             
+                <!-- Favorites Section -->
+                <div class="flex gap-4">
+                    <!-- Album Section -->
+                    <div class="relative w-48 h-48 rounded-lg overflow-hidden shadow-lg">
+                        <img
+                            src="{{ post.wrap.top_tracks.all.0.album_cover_url }}"
+                            alt="Album Cover"
+                            class="w-full h-full object-cover"
+                            style="filter: brightness(0.7);"
+                        />
+                        <div
+                            class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black via-transparent to-transparent text-center"
+                        >
+                            <p class="text-white font-bold text-base">Album</p>
+                            <p class="text-gray-300 text-sm">{{ post.wrap.top_tracks.all.0.name }}</p>
+                        </div>
+                    </div>
+            
+                    <!-- Artist Section -->
+                    <div class="relative w-48 h-48 rounded-lg overflow-hidden shadow-lg">
+                        <img
+                            src="{{ post.wrap.top_artists.all.0.image_url }}"
+                            alt="Artist Image"
+                            class="w-full h-full object-cover"
+                            style="filter: brightness(0.7);"
+                        />
+                        <div
+                            class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black via-transparent to-transparent text-center"
+                        >
+                            <p class="text-white font-bold text-base">Artist</p>
+                            <p class="text-gray-300 text-sm">{{ post.wrap.top_artists.all.0.name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Likes and View Button Section -->
+            <div class="flex justify-between items-center mt-4 bg-gray-800 rounded-lg">
+                <!-- Liked By -->
+                <div class="flex items-center gap-2">
+                    <p class="text-gray-400">Liked by:</p>
+                    {% if post.liked_by.all %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for user in post.liked_by.all %}
+                        <span class="bg-gray-700 px-3 py-1 rounded-full text-sm text-white hover:bg-gray-600 transition shadow">
+                            {{ user.first_name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="text-gray-500 text-sm italic">No likes yet</span>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons Section -->
+                <div class="flex items-center gap-4">
+                    <!-- Like Button -->
+                    <form method="POST" action="#" class="flex items-center">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button
+                            type="submit"
+                            id="heartButton"
+                            name="favorite"
+                            class="flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full hover:from-red-600 hover:to-pink-600 transition shadow-md"
+                        >
+                            {% if user in post.liked_by.all %}
+                            <i class="fa-solid fa-heart mr-2"></i>
+                            Liked
+                            {% else %}
+                            <i class="fa-regular fa-heart mr-2"></i>
+                            Like
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    <!-- View Button -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                        <button
+                            class="bg-green-600 text-white font-sm py-2 px-6 rounded-full hover:bg-green-700 transition shadow-md"
+                            type="submit"
+                            name="experience"
+                        >
+                            Details
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
         {% empty %}
         <!-- Message for No Posts -->
@@ -98,7 +167,5 @@
         {% endfor %}
     </div>
 </div>
-
-
 
 {% endblock %}

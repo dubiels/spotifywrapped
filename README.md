@@ -56,10 +56,10 @@ This README provides a description of each HTML page, folder structure, and inst
 |--------------------------------------------------|----------|---------|-------|---|
 | Base User Story #1: Spotify API setup            |✅  | ✅ |  |  |
 | Base User Story #2: User Authentication          | ✅ | ✅ |  |  |
-| Base User Story #3: UI design                    |  |  |  |  |
-| Base User Story #4: .gitignore setup             |✅  |✅  | Created✅ |  |
+| Base User Story #3: UI design                    |✅  | ✅ |  |  |
+| Base User Story #4: .gitignore setup             |✅  |✅  |  |  |
 | Customizable User Story #5: Hear clips from top songs | ✅ | ✅ |  | +3 |
-| Customizable User Story #8: View and interact with other users' Wrapped | |  |  | +9 |
+| Customizable User Story #8: View and interact with other users' Wrapped |✅ |✅  |  | +9 |
 | Customizable User Story #10: Dark mode |  |✅  | ✅ |  +2 |
 | Customizable User Story #11: Share Wrapped on social media | ✅ | ✅ |  | +2 |
 | Customizable User Story #13: Hosting on a service | ✅ | ✅ |  |+5  |
